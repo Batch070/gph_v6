@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPH Automated Fine Payment | Government Polytechnic Hamirpur</title>
+    <meta name="description"
+        content="Official secure fee and fine payment portal for Government Polytechnic Hamirpur. Secure, transparent, and digital management.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="main-container">
+
+        <!-- Left Side: Educational Illustration -->
+        <section class="illustration-side">
+            <img src="/static/campus_illustration.png" alt="Government Polytechnic Hamirpur Campus Illustration">
+            <div class="overlay"></div>
+            <div class="welcome-content">
+                <h1>
+                    Welcome to the Official <br>
+                    Fee Payment Portal
+                </h1>
+                <p>
+                    Secure, transparent, and digital fine & fee management system
+                    for students and staff of Government Polytechnic Hamirpur.
+                </p>
+            </div>
+        </section>
+
+        <!-- Right Side: Login Form -->
+        <section class="login-side">
+
+            <div class="login-header">
+
+                <!-- 🔹 COLLEGE LOGO -->
+                <img src="/static/logoo.png" alt="Government Polytechnic Hamirpur Logo" class="college-logo">
+
+                <span class="college-name">
+                    Government Polytechnic Hamirpur
+                </span>
+
+                <h2 class="project-title">
+                    GPH Automated Fine Payment
+                </h2>
+
+            </div>
+
+            <div class="login-card">
+
+                <!-- 🔹 ROLE TOGGLE -->
+                <div class="role-toggle">
+                    <button type="button" class="role-btn active" data-role="student">Student</button>
+                    <button type="button" class="role-btn" data-role="faculty">Faculty / Admin</button>
+                </div>
+
+                <form id="loginForm">
+
+                    <div class="form-group">
+                        <label for="username" id="usernameLabel">Roll Number</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="username" name="username" placeholder="e.g. SBRN001" required
+                                autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" id="passwordLabel">Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" name="password" placeholder="Enter your password"
+                                required autocomplete="current-password">
+                        </div>
+                    </div>
+
+                    <!-- Error message -->
+                    <div id="errorMsg" class="error-msg" style="display:none;"></div>
+
+                    <button type="submit" class="login-btn" id="loginBtn">
+                        Login to Portal
+                    </button>
+
+                    <div class="security-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                        </svg>
+                        Secure & Authorized Access
+                    </div>
+
+                </form>
+
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        const API_BASE = '';  // same origin
+
+        // ── Role Toggle ──────────────────────────────────────
+        let selectedRole = 'student';
+        const roleBtns = document.querySelectorAll('.role-btn');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const usernameLabel = document.getElementById('usernameLabel');
+        const passwordLabel = document.getElementById('passwordLabel');
+        const errorMsg = document.getElementById('errorMsg');
+        const loginBtn = document.getElementById('loginBtn');
+
+        roleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                roleBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedRole = btn.dataset.role;
+                errorMsg.style.display = 'none';
+
+                if (selectedRole === 'student') {
+                    usernameLabel.textContent = 'Roll Number';
+                    usernameInput.placeholder = 'e.g. SBRN001';
+                    passwordLabel.textContent = 'Date of Birth';
+                    passwordInput.placeholder = 'YYYY-MM-DD';
+                    passwordInput.type = 'password';
+                } else {
+                    usernameLabel.textContent = 'Username';
+                    usernameInput.placeholder = 'Enter your username';
+                    passwordLabel.textContent = 'Password';
+                    passwordInput.placeholder = 'Enter your password';
+                    passwordInput.type = 'password';
+                }
+            });
+        });
+
+        // ── Login Handler ────────────────────────────────────
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            errorMsg.style.display = 'none';
+
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!username || !password) {
+                showError('Please fill in all fields.');
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Authenticating...';
+
+            try {
+                let url, body;
+
+                if (selectedRole === 'student') {
+                    url = `${API_BASE}/api/student/login`;
+                    body = JSON.stringify({ roll_no: username, dob: password });
+                } else {
+                    url = `${API_BASE}/api/faculty/login`;
+                    body = JSON.stringify({ username: username, password: password });
+                }
+
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: body,
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showError(data.detail || 'Login failed. Please check your credentials.');
+                    return;
+                }
+
+                // Store token & role
+                localStorage.setItem('access_token', data.access_token);
+                localStorage.setItem('user_role', selectedRole);
+
+                // Decode JWT to get role from token
+                const payload = JSON.parse(atob(data.access_token.split('.')[1]));
+                localStorage.setItem('token_role', payload.role);
+                localStorage.setItem('token_sub', payload.sub);
+
+                // Redirect based on role using relative routes
+                const role = payload.role;
+                if (role === 'Student') {
+                    window.location.href = '/student-dashboard';
+                } else if (role === 'ClassIncharge') {
+                    window.location.href = '/incharge-dashboard';
+                } else if (role === 'HOD') {
+                    window.location.href = '/hod-dashboard';
+                } else if (role === 'Admin') {
+                    window.location.href = '/admin-dashboard';
+                } else if (role === 'ANO') {
+                    window.location.href = '/ano-dashboard';
+                } else if (role === 'PTI') {
+                    window.location.href = '/pti-dashboard';
+                } else if (role === 'Librarian') {
+                    window.location.href = '/librarian-dashboard';
+                } else if (role === 'CanteenOwner') {
+                    window.location.href = '/canteen-dashboard';
+                } else if (role === 'HostelSuperintendent_Boys' || role === 'HostelSuperintendent_Girls') {
+                    window.location.href = '/hostel-dashboard';
+                } else {
+                    window.location.href = '/static/faculty-dashboard.html';
+                }
+
+            } catch (err) {
+                showError('Network error. Please try again.');
+                console.error(err);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login to Portal';
+            }
+        });
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.style.display = 'block';
+        }
+
+        // Redirect if already logged in using pretty URLs
+        if (localStorage.getItem('access_token')) {
+            const role = localStorage.getItem('token_role');
+            if (role === 'Student') window.location.href = '/student-dashboard';
+            else if (role === 'ClassIncharge') window.location.href = '/incharge-dashboard';
+            else if (role === 'HOD') window.location.href = '/hod-dashboard';
+            else if (role === 'Admin') window.location.href = '/admin-dashboard';
+            else if (role === 'ANO') window.location.href = '/ano-dashboard';
+            else if (role === 'PTI') window.location.href = '/pti-dashboard';
+            else if (role === 'Librarian') window.location.href = '/librarian-dashboard';
+            else if (role === 'CanteenOwner') window.location.href = '/canteen-dashboard';
+            else if (role === 'HostelSuperintendent_Boys' || role === 'HostelSuperintendent_Girls') window.location.href = '/hostel-dashboard';
+            else if (role) window.location.href = `/static/faculty-dashboard.html`;
+        }
+    </script>
+
+</body>
+
+</html>

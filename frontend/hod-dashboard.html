@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOD Dashboard | GPH Automated Fine Payment</title>
+    <meta name="description" content="HOD Dashboard for GPH Automated Fine Payment System — IT Department Management">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/font-awesome.css">
+    <link rel="stylesheet" href="/static/hod-dashboard.css?v=1.1">
+</head>
+
+<body>
+    <!-- View Switching Radio Buttons (Hidden) — Nested State Machine -->
+    <input type="radio" name="dashboard-view" id="view-overview" checked hidden>
+    <input type="radio" name="dashboard-view" id="view-upload-branch" hidden>
+    <input type="radio" name="dashboard-view" id="view-upload-semester" hidden>
+    <input type="radio" name="dashboard-view" id="view-faculty" hidden>
+    <input type="radio" name="dashboard-view" id="view-requests-dash" hidden>
+    <input type="radio" name="dashboard-view" id="view-requests-list" hidden>
+    <input type="radio" name="dashboard-view" id="view-student-profile" hidden>
+    <input type="radio" name="dashboard-view" id="view-reports" hidden>
+    <input type="radio" name="dashboard-view" id="view-reset" hidden>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>GPH</h2>
+                    <p>Fine Portal</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <label for="view-overview" class="nav-label active-overview" id="nav-overview">
+                            <i class="fa-solid fa-chart-pie"></i> <span>Overview</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label for="view-faculty" class="nav-label active-faculty" id="nav-faculty">
+                            <i class="fa-solid fa-users-gear"></i> <span>Manage Faculty</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label for="view-upload-branch" class="nav-label active-upload-branch" id="nav-upload-branch">
+                            <i class="fa-solid fa-building-columns"></i> <span>Branch Data Upload</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label for="view-upload-semester" class="nav-label active-upload-semester"
+                            id="nav-upload-semester">
+                            <i class="fa-solid fa-layer-group"></i> <span>Semester Data Upload</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label for="view-requests-dash" class="nav-label active-requests" id="nav-requests">
+                            <i class="fa-solid fa-code-pull-request"></i> <span>Fine Approvals</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label for="view-reports" class="nav-label active-reports" id="nav-reports">
+                            <i class="fa-solid fa-file-contract"></i> <span>Reports Hub</span>
+                        </label>
+                    </li>
+                    <li class="danger-menu">
+                        <label for="view-reset" class="nav-label active-reset" id="nav-reset">
+                            <i class="fa-solid fa-triangle-exclamation"></i> <span>Reset Data</span>
+                        </label>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="#" class="logout-link" id="sidebarLogout"><i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span></a>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper">
+            <div class="bg-overlay"></div>
+
+            <!-- Header -->
+            <header class="top-header">
+                <div class="welcome-text animated-fade">
+                    <h1 id="headerName">Welcome <span class="wave-emoji">👋</span></h1>
+                    <p id="headerSubtitle">Head of Department</p>
+                </div>
+
+                <div class="header-illustration">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z"
+                            fill="#1e3a8a" fill-opacity="0.1" />
+                        <path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z"
+                            stroke="#1e3a8a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+
+                <div class="header-actions">
+                    <button class="icon-btn" title="Notifications" id="notifBtn">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="notif-badge" id="notifBadge" style="display:none;"></span>
+                    </button>
+                    <button class="logout-btn-small" title="Logout" id="headerLogout">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-overlay">
+                <div class="spinner"></div>
+                <p class="loading-text">Loading your dashboard...</p>
+            </div>
+
+            <!-- Main Content -->
+            <main class="content-area" id="mainContent" style="display: none;">
+
+                <!-- ═══ OVERVIEW ═══ -->
+                <div id="overview" class="dashboard-section">
+                    <section class="card animated-card snapshot-card mb-2">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-chart-pie"></i> IT Department Overview</h3>
+                        </div>
+                        <div class="snapshot-grid">
+                            <div class="info-item">
+                                <label>Total Students (IT Dept)</label>
+                                <div class="info-value" id="statStudents">0</div>
+                            </div>
+                            <div class="info-item">
+                                <label>Total Faculty</label>
+                                <div class="info-value" id="statFaculty">0</div>
+                            </div>
+                            <div class="info-item">
+                                <label>Total Fine Generated</label>
+                                <div class="info-value" id="statTotalFine">₹ 0</div>
+                            </div>
+                            <div class="info-item">
+                                <label>Total Fine Collected</label>
+                                <div class="info-value text-green" id="statCollected">₹ 0</div>
+                            </div>
+                            <div class="info-item">
+                                <label>Remaining Fine</label>
+                                <div class="info-value text-red" id="statRemaining">₹ 0</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="card animated-card mb-2">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-database"></i> Database Insights: Class Incharges</h3>
+                        </div>
+                        <div class="db-insights-grid" id="hod-db-insights">
+                            <!-- Populated via JS -->
+                        </div>
+                        <h4 style="margin-top: 2rem; margin-bottom: 1rem; color: var(--text-light); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Student Demographics</h4>
+                        <div class="db-insights-grid" id="hod-student-demographics">
+                            <!-- Populated via JS -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- ═══ FACULTY MANAGEMENT ═══ -->
+                <div id="faculty-management" class="dashboard-section">
+                    <section class="card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-users-gear"></i> Manage Faculty Details</h3>
+                            <button class="btn btn-primary btn-sm" id="addFacultyBtn">
+                                <i class="fa-solid fa-plus"></i> Add Faculty
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="approval-table custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Faculty Name</th>
+                                        <th>Role</th>
+                                        <th>Assigned Classes</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="facultyTableBody">
+                                    <tr>
+                                        <td colspan="5" class="no-data">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- ═══ BRANCH DATA UPLOAD ═══ -->
+                <div id="branch-upload" class="dashboard-section">
+                    <section class="card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-upload"></i> Upload Complete Branch Data</h3>
+                        </div>
+                        <div class="form-container">
+                            <div class="alert alert-info">
+                                <strong><i class="fa-solid fa-circle-info"></i> Note:</strong> Upload master student
+                                data for the entire IT department here. Required columns: <code>roll_no</code>,
+                                <code>name</code>, <code>semester</code>, <code>dob</code>. Optional:
+                                <code>gender</code>, <code>ncc</code>, <code>hosteller</code>,
+                                <code>academic_year</code>.
+                            </div>
+                            <div class="form-group">
+                                <label>Upload Excel File (.xlsx, .xls, .csv)</label>
+                                <input type="file" class="form-control" id="branchFile" accept=".xlsx,.xls,.csv">
+                            </div>
+                            <div id="branchUploadResult" class="upload-result"></div>
+                            <button class="btn btn-primary mt-1" style="width: 100%;" id="branchUploadBtn">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Upload Branch Data
+                            </button>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- ═══ SEMESTER DATA UPLOAD ═══ -->
+                <div id="semester-upload" class="dashboard-section">
+                    <section class="card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-layer-group"></i> Upload Semester-wise Data</h3>
+                        </div>
+                        <div class="form-container">
+                            <div class="form-group">
+                                <label>Select Target Semester</label>
+                                <select class="form-control" id="semesterSelect">
+                                    <option value="">-- Select Semester --</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Upload Excel File (.xlsx, .xls, .csv)</label>
+                                <input type="file" class="form-control" id="semesterFile" accept=".xlsx,.xls,.csv">
+                            </div>
+                            <div id="semesterUploadResult" class="upload-result"></div>
+                            <button class="btn btn-primary mt-1" style="width: 100%;" id="semesterUploadBtn">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Upload Semester Data
+                            </button>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- ═══ REQUESTS MODULE ═══ -->
+                <div id="requests-module" class="dashboard-section">
+
+                    <!-- Requests Dashboard -->
+                    <div id="req-dash-view" class="nested-view">
+                        <h2 class="section-title-transparent"><i class="fa-solid fa-code-pull-request"></i> HOD Fine
+                            Approvals</h2>
+                        <section class="card animated-card mb-2 snapshot-card">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-chart-line"></i> Global Approval Insights</h3>
+                            </div>
+                            <div class="snapshot-grid" style="grid-template-columns: repeat(3, 1fr);">
+                                <div class="info-item insight-item">
+                                    <div class="circle-wrap">
+                                        <div class="circle" id="circlePending"
+                                            style="background: conic-gradient(var(--warning) 0%, #e2e8f0 0);">
+                                            <div class="inner-circle">
+                                                <span id="insightPending">0</span><br><small>Pending</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="info-item insight-item">
+                                    <div class="circle-wrap">
+                                        <div class="circle" id="circleApproved"
+                                            style="background: conic-gradient(var(--success) 0%, #e2e8f0 0);">
+                                            <div class="inner-circle">
+                                                <span id="insightApproved">0</span><br><small>Approved</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="info-item insight-item">
+                                    <div class="circle-wrap">
+                                        <div class="circle" id="circleRejected"
+                                            style="background: conic-gradient(var(--danger) 0%, #e2e8f0 0);">
+                                            <div class="inner-circle">
+                                                <span id="insightRejected">0</span><br><small>Rejected</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <div class="semester-cards-grid" id="semesterCards">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Requests List -->
+                    <div id="req-list-view" class="nested-view">
+                        <div class="header-with-back mb-2">
+                            <label for="view-requests-dash" class="btn btn-outline btn-sm back-btn"
+                                id="backToSemesters">
+                                <i class="fa-solid fa-arrow-left"></i> Back to Semesters
+                            </label>
+                            <h2 style="margin: 0;" id="listSemTitle">Department Final Approvals</h2>
+                        </div>
+                        <section class="card animated-card">
+                            <div class="table-responsive">
+                                <table class="approval-table custom-table interactive-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Student</th>
+                                            <th>Roll No / Sem</th>
+                                            <th>Amount</th>
+                                            <th>Reason</th>
+                                            <th>Incharge Status</th>
+                                            <th>HOD Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="studentListBody">
+                                        <tr>
+                                            <td colspan="6" class="no-data">Select a semester to view approvals.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Student Profile -->
+                    <div id="req-profile-view" class="nested-view">
+                        <div class="header-with-back mb-2">
+                            <label for="view-requests-list" class="btn btn-outline btn-sm back-btn" id="backToList">
+                                <i class="fa-solid fa-arrow-left"></i> Back
+                            </label>
+                        </div>
+                        <div class="profile-header card animated-card mb-2">
+                            <div class="avatar-lg" id="profileAvatar">?</div>
+                            <div>
+                                <h2 id="profileName" style="margin: 0; color: var(--primary-color);">---</h2>
+                                <p class="text-light" style="margin: 5px 0 0 0;" id="profileSubtitle">---</p>
+                            </div>
+                        </div>
+                        <div class="dashboard-grid">
+                            <section class="card animated-card" style="grid-column: span 2;">
+                                <div class="card-header">
+                                    <h3><i class="fa-solid fa-user-graduate"></i> Academic Standing</h3>
+                                </div>
+                                <div id="profileDetailsGrid"
+                                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <!-- Filled by JS -->
+                                </div>
+                            </section>
+                            <section class="card animated-card">
+                                <div class="card-header">
+                                    <h3><i class="fa-solid fa-timeline"></i> Approval Timeline</h3>
+                                </div>
+                                <div class="timeline-container" id="profileTimeline">
+                                    <!-- Filled by JS -->
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ═══ REPORTS HUB ═══ -->
+                <div id="reports" class="dashboard-section">
+                    <section class="card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-file-contract"></i> Department Reports Hub</h3>
+                        </div>
+                        <div class="reports-container">
+                            <div class="report-item">
+                                <span><i class="fa-solid fa-file-invoice" style="margin-right: 8px;"></i> Overall
+                                    Department Fine Collection Report</span>
+                                <button class="btn btn-primary btn-sm" data-report="collection" id="reportCollection">
+                                    <i class="fa-solid fa-download"></i> Download
+                                </button>
+                            </div>
+                            <div class="report-item">
+                                <span><i class="fa-solid fa-file-excel" style="margin-right: 8px;"></i> Class-wise
+                                    Defaulter List</span>
+                                <button class="btn btn-primary btn-sm" data-report="defaulter" id="reportDefaulter">
+                                    <i class="fa-solid fa-download"></i> Download
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- ═══ RESET DATA ═══ -->
+                <div id="reset-data" class="dashboard-section">
+                    <section class="card animated-card mb-2" style="border: 2px solid #fecaca;">
+                        <div class="card-header" style="border-bottom-color: #fecaca;">
+                            <h3 style="color: var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> Reset
+                                Department Data</h3>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <div class="alert alert-danger">
+                                <strong><i class="fa-solid fa-radiation"></i> WARNING:</strong> This will permanently
+                                clear all semester fine data, requests, attendance records, and student statuses for the
+                                entire IT department!
+                            </div>
+                            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                                <label for="view-overview" class="btn btn-outline"
+                                    style="border-color: #cbd5e1; color: #64748b; cursor: pointer;">Cancel</label>
+                                <button class="btn btn-danger" id="hodResetConfirm"><i
+                                        class="fa-solid fa-trash-can"></i> Confirm Department Reset</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="card animated-card" style="border: 2px solid #fecaca;">
+                        <div class="card-header" style="border-bottom-color: #fecaca;">
+                            <h3 style="color: var(--danger);"><i class="fa-solid fa-user-xmark"></i> Delete Semester
+                                Students Data</h3>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <div class="alert alert-danger">
+                                <strong><i class="fa-solid fa-radiation"></i> WARNING:</strong> This will permanently
+                                delete <strong>ALL STUDENTS</strong>, fines, and requests for the selected semester!
+                            </div>
+                            <div class="form-group">
+                                <label>Select Semester to Delete</label>
+                                <select class="form-control" id="deleteSemesterSelect">
+                                    <option value="">-- Load Semesters --</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                                <button class="btn btn-danger" id="deleteSemesterConfirm"><i
+                                        class="fa-solid fa-trash-can"></i> Delete Semester Data</button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         JAVASCRIPT — Full Functionality
+         ═══════════════════════════════════════════════════════════ -->
+    <script>
+        // ── Config ─────────────────────────────────────────────
+        const API_BASE = '';
+        const token = localStorage.getItem('access_token');
+
+        // ── Auth Guard ─────────────────────────────────────────
+        if (!token) {
+            window.location.href = '/';
+        }
+
+        const authHeaders = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        };
+
+        // ── DOM References ─────────────────────────────────────
+        const loadingState = document.getElementById('loadingState');
+        const mainContent = document.getElementById('mainContent');
+
+        // Track current semester for list drill-down
+        let currentSemester = null;
+        // Cache overview data
+        let overviewData = null;
+
+        // ── Helpers ────────────────────────────────────────────
+        function showToast(message, type = 'success') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        function semesterLabel(num) {
+            const suffixes = { 1: 'st', 2: 'nd', 3: 'rd' };
+            return `${num}${suffixes[num] || 'th'} Semester`;
+        }
+
+        function formatCurrency(val) {
+            return `₹ ${Number(val || 0).toLocaleString('en-IN')}`;
+        }
+
+        // ── Load Dashboard Data ────────────────────────────────
+        async function loadDashboard() {
+            try {
+                const res = await fetch(`${API_BASE}/api/hod/overview`, {
+                    headers: authHeaders,
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                    localStorage.clear();
+                    window.location.href = '/';
+                    return;
+                }
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    showToast(err.detail || 'Failed to load dashboard', 'error');
+                    return;
+                }
+
+                overviewData = await res.json();
+                populateOverview(overviewData);
+
+                // Also load semesters for the approval section
+                await loadSemesters();
+
+                loadingState.style.display = 'none';
+                mainContent.style.display = 'flex';
+
+            } catch (err) {
+                console.error('Dashboard load error:', err);
+                showToast('Network error. Please try again.', 'error');
+            }
+        }
+
+        function populateOverview(data) {
+            // Header
+            document.getElementById('headerName').textContent =
+                `Welcome, ${data.faculty_name} 👋`;
+            document.getElementById('headerSubtitle').textContent =
+                `Head of Department (${data.branch})`;
+
+            // Stats
+            document.getElementById('statStudents').textContent = data.total_students;
+            document.getElementById('statFaculty').textContent = data.total_faculty;
+            document.getElementById('statTotalFine').textContent = formatCurrency(data.total_fine);
+            document.getElementById('statCollected').textContent = formatCurrency(data.collected);
+            document.getElementById('statRemaining').textContent = formatCurrency(data.remaining);
+
+            // Approval insights (conic gradients)
+            const total = data.pending_requests + data.approved_requests + data.rejected_requests || 1;
+            const pendingPct = Math.round((data.pending_requests / total) * 100);
+            const approvedPct = Math.round((data.approved_requests / total) * 100);
+            const rejectedPct = Math.round((data.rejected_requests / total) * 100);
+
+            document.getElementById('insightPending').textContent = data.pending_requests;
+            document.getElementById('insightApproved').textContent = data.approved_requests;
+            document.getElementById('insightRejected').textContent = data.rejected_requests;
+
+            document.getElementById('circlePending').style.background =
+                `conic-gradient(var(--warning) ${pendingPct}%, #e2e8f0 0)`;
+            document.getElementById('circleApproved').style.background =
+                `conic-gradient(var(--success) ${approvedPct}%, #e2e8f0 0)`;
+            document.getElementById('circleRejected').style.background =
+                `conic-gradient(var(--danger) ${rejectedPct}%, #e2e8f0 0)`;
+
+            // Notification badge
+            if (data.pending_requests > 0) {
+                document.getElementById('notifBadge').style.display = 'block';
+            } else {
+                document.getElementById('notifBadge').style.display = 'none';
+            }
+        }
+
+        // ── Load Semesters for Approval Cards ──────────────────
+        async function loadSemesters() {
+            try {
+                const res = await fetch(`${API_BASE}/api/hod/semesters`, {
+                    headers: authHeaders,
+                });
+                if (!res.ok) return;
+
+                const semesters = await res.json();
+                const container = document.getElementById('semesterCards');
+                container.innerHTML = '';
+
+                // Also populate the semester select dropdown
+                const semSelect = document.getElementById('semesterSelect');
+                semSelect.innerHTML = '<option value="">-- Select Semester --</option>';
+
+                semesters.forEach(sem => {
+                    // Approval cards
+                    const card = document.createElement('div');
+                    card.className = 'semester-card';
+                    card.innerHTML = `
+                        <div class="sem-icon"><i class="fa-solid fa-building-columns"></i></div>
+                        <h3>IT ${semesterLabel(sem.semester)}</h3>
+                        <p>${sem.pending_requests} Pending Requests for HOD</p>
+                        <div class="card-action-hint">View Approvals <i class="fa-solid fa-arrow-right"></i></div>
+                    `;
+                    card.addEventListener('click', () => {
+                        // Click radio to switch to list view
+                        document.getElementById('view-requests-list').checked = true;
+                        showStudentList(sem.semester);
+                    });
+                    container.appendChild(card);
+
+                    // Dropdown option
+                    const opt = document.createElement('option');
+                    opt.value = sem.semester;
+                    opt.textContent = `IT ${semesterLabel(sem.semester)}`;
+                    semSelect.appendChild(opt);
+                });
+
+                if (semesters.length === 0) {
+                    container.innerHTML = '<p class="no-data">No semesters found. Upload student data first.</p>';
+                }
+            } catch (err) {
+                console.error('Semesters load error:', err);
+            }
+        }
+
+        // ── Show Student List for a Semester ───────────────────
+        async function showStudentList(semester) {
+            currentSemester = semester;
+            document.getElementById('listSemTitle').textContent =
+                `IT ${semesterLabel(semester)} — Final Approvals`;
+
+            const tbody = document.getElementById('studentListBody');
+            tbody.innerHTML = '<tr><td colspan="6" class="no-data">Loading...</td></tr>';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/hod/students?semester=${semester}`, {
+                    headers: authHeaders,
+                });
+                if (!res.ok) return;
+
+                const students = await res.json();
+
+                if (students.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="no-data">No students found for this semester.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = students.map(s => {
+                    const initial = s.name.charAt(0);
+
+                    // Incharge status badge
+                    let icBadge = '<span class="badge" style="background:#f1f5f9;color:#64748b;">No Request</span>';
+                    if (s.incharge_status === 'Approved') {
+                        icBadge = '<span class="badge badge-success">Cleared by IC</span>';
+                    } else if (s.incharge_status === 'Pending') {
+                        icBadge = '<span class="badge badge-pending">IC Pending</span>';
+                    } else if (s.incharge_status === 'Rejected') {
+                        icBadge = '<span class="badge badge-rejected">IC Rejected</span>';
+                    }
+
+                    // HOD action buttons
+                    let actions = '—';
+                    if (s.request_status === 'Pending') {
+                        actions = `
+                            <div class="action-btn-group">
+                                <button class="btn btn-success btn-sm" title="Approve"
+                                    onclick="updateRequest(${s.request_id}, 'Approved', this)">
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" title="Reject"
+                                    onclick="updateRequest(${s.request_id}, 'Rejected', this)">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>`;
+                    } else if (s.request_status === 'Approved') {
+                        actions = '<span class="badge badge-success"><i class="fa-solid fa-lock"></i> Approved</span>';
+                    } else if (s.request_status === 'Rejected') {
+                        actions = '<span class="badge badge-rejected"><i class="fa-solid fa-lock"></i> Rejected</span>';
+                    }
+
+                    const fineDisplay = s.fine_amount > 0
+                        ? `<span class="fine-amount">₹ ${s.fine_amount.toLocaleString('en-IN')}</span>`
+                        : '<span class="text-light">₹ 0</span>';
+
+                    return `<tr>
+                        <td class="clickable-cell">
+                            <span class="student-link" onclick="showStudentProfile('${s.roll_no}')">
+                                <div class="avatar-sm">${initial}</div> ${s.name}
+                            </span>
+                        </td>
+                        <td>${s.roll_no} (${s.semester}th Sem)</td>
+                        <td>${fineDisplay}</td>
+                        <td><input type="text" class="form-control grid-note-input"
+                            id="note-${s.request_id}" placeholder="Add note..."
+                            value="${s.request_note || ''}"
+                            ${s.request_status !== 'Pending' ? 'disabled' : ''}></td>
+                        <td>${icBadge}</td>
+                        <td>${actions}</td>
+                    </tr>`;
+                }).join('');
+
+            } catch (err) {
+                console.error('Student list error:', err);
+                showToast('Failed to load students', 'error');
+            }
+        }
+
+        // ── Update Request (Approve / Reject) ──────────────────
+        async function updateRequest(requestId, newStatus, btnEl) {
+            if (!requestId) {
+                showToast('No request to update', 'warning');
+                return;
+            }
+
+            const noteInput = document.getElementById(`note-${requestId}`);
+            const note = noteInput ? noteInput.value.trim() : '';
+
+            btnEl.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/faculty/update-request/${requestId}`, {
+                    method: 'POST',
+                    headers: authHeaders,
+                    body: JSON.stringify({ status: newStatus, note: note || null }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showToast(data.detail || 'Failed to update request', 'error');
+                    btnEl.disabled = false;
+                    return;
+                }
+
+                showToast(`Request ${newStatus.toLowerCase()} successfully`, 'success');
+
+                // Refresh
+                if (currentSemester) showStudentList(currentSemester);
+                loadDashboard();
+
+            } catch (err) {
+                console.error('Update error:', err);
+                showToast('Network error', 'error');
+                btnEl.disabled = false;
+            }
+        }
+
+        // ── Show Student Profile ───────────────────────────────
+        async function showStudentProfile(rollNo) {
+            // Switch radio to profile view
+            document.getElementById('view-student-profile').checked = true;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/hod/student/${rollNo}`, {
+                    headers: authHeaders,
+                });
+                if (!res.ok) {
+                    showToast('Failed to load profile', 'error');
+                    return;
+                }
+
+                const p = await res.json();
+
+                document.getElementById('profileAvatar').textContent = p.name.charAt(0);
+                document.getElementById('profileName').textContent = p.name;
+                document.getElementById('profileSubtitle').innerHTML =
+                    `<i class="fa-solid fa-id-card"></i> ${p.roll_no} | ${semesterLabel(p.semester)} (${p.branch})`;
+
+                // Academic details
+                const grid = document.getElementById('profileDetailsGrid');
+                grid.innerHTML = `
+                    <div style="padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+                        <span class="text-light">Theory Attendance:</span>
+                        <strong style="float:right;">${Math.round(p.theory_attendance)}%</strong>
+                    </div>
+                    <div style="padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+                        <span class="text-light">Practical Attendance:</span>
+                        <strong style="float:right;">${Math.round(p.practical_attendance)}%</strong>
+                    </div>
+                    <div style="padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+                        <span class="text-light">Total Fine Generated:</span>
+                        <strong style="float:right;">${formatCurrency(p.total_fine)}</strong>
+                    </div>
+                    <div style="padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+                        <span class="text-light">Total Fine Paid:</span>
+                        <strong class="text-green" style="float:right;">${formatCurrency(p.paid)}</strong>
+                    </div>
+                    <div style="padding: 8px 0; grid-column: span 2;">
+                        <span class="text-light">Current Remaining Fine:</span>
+                        <strong class="text-red" style="float:right; font-size: 1.1rem;">${formatCurrency(p.remaining)}</strong>
+                    </div>
+                `;
+
+                // Approval timeline
+                const timeline = document.getElementById('profileTimeline');
+                if (p.approvals && p.approvals.length > 0) {
+                    timeline.innerHTML = p.approvals.map(a => {
+                        let iconClass = 'pending';
+                        let icon = 'fa-hourglass-half';
+                        if (a.status === 'Approved') { iconClass = 'success'; icon = 'fa-check'; }
+                        else if (a.status === 'Rejected') { iconClass = 'rejected'; icon = 'fa-xmark'; }
+
+                        const roleLabel = {
+                            'ClassIncharge': 'Class Incharge',
+                            'HOD': 'HOD', 'PTI': 'PTI', 'ANO': 'ANO (NCC)',
+                            'Librarian': 'Library', 'CanteenOwner': 'Canteen',
+                            'HostelSuperintendent_Boys': 'Hostel Sup. (Boys)',
+                            'HostelSuperintendent_Girls': 'Hostel Sup. (Girls)',
+                        }[a.faculty_role] || a.faculty_role;
+
+                        return `
+                            <div class="timeline-item">
+                                <div class="timeline-icon ${iconClass}"><i class="fa-solid ${icon}"></i></div>
+                                <div class="timeline-content">
+                                    <h4>${roleLabel} — ${a.status}</h4>
+                                    <p>${a.faculty_name}${a.note ? ': ' + a.note : ''}</p>
+                                    <span class="time-stamp">${a.action_date || (a.status === 'Pending' ? 'Action Required' : '')}</span>
+                                </div>
+                            </div>`;
+                    }).join('');
+                } else {
+                    timeline.innerHTML = '<div class="no-data">No clearance requests yet.</div>';
+                }
+
+            } catch (err) {
+                console.error('Profile load error:', err);
+                showToast('Failed to load profile', 'error');
+            }
+        }
+
+        // ── Role Labels ──────────────────────────────────────
+        const ROLE_LABELS = {
+            'ClassIncharge': 'Class Incharge',
+            'HOD': 'HOD',
+        };
+
+        // ── Load Faculty Table (IT Dept Only) ──────────────────
+        async function loadFaculty() {
+            const tbody = document.getElementById('facultyTableBody');
+            tbody.innerHTML = '<tr><td colspan="5" class="no-data">Loading...</td></tr>';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/hod/faculty`, {
+                    headers: authHeaders,
+                });
+                if (!res.ok) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="no-data">Failed to load IT department faculty.</td></tr>';
+                    return;
+                }
+
+                const faculty = await res.json();
+
+                if (faculty.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="no-data">No IT department faculty found.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = faculty.map(f => {
+                    const isHOD = f.role === 'HOD';
+                    const roleLabel = ROLE_LABELS[f.role] || f.role;
+
+                    // HOD cannot remove themselves
+                    const actions = isHOD
+                        ? '<span class="badge badge-success"><i class="fa-solid fa-shield"></i> You (HOD)</span>'
+                        : `<div class="action-btn-group" style="flex-wrap: wrap; gap: 6px;">
+                                <button class="btn btn-success btn-sm" title="Assign to Semester"
+                                    onclick="showAssignInchargeModal(${f.id}, '${f.name.replace(/'/g, "\\'")}')">
+                                    <i class="fa-solid fa-chalkboard-user"></i> Assign Sem
+                                </button>
+                                <button class="btn btn-danger btn-sm" title="Remove Faculty"
+                                    onclick="confirmRemoveFaculty(${f.id}, '${f.name.replace(/'/g, "\\'")}')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                           </div>`;
+
+                    return `<tr>
+                        <td><strong>${f.name}</strong></td>
+                        <td><span class="badge ${isHOD ? 'badge-approved' : 'badge-pending'}">${roleLabel}</span></td>
+                        <td>${f.assigned_classes}</td>
+                        <td><span class="badge badge-success">${f.status}</span></td>
+                        <td>${actions}</td>
+                    </tr>`;
+                }).join('');
+
+            } catch (err) {
+                console.error('Faculty load error:', err);
+                showToast('Failed to load faculty', 'error');
+            }
+        }
+
+        // ── Assign Class Incharge to Semester Modal ────────────
+        function showAssignInchargeModal(facultyId, name) {
+            // Build semester options (Sem 3–6 only for HOD)
+            let semOpts = '';
+            for (let i = 3; i <= 6; i++) {
+                semOpts += `<option value="${i}">${semesterLabel(i)}</option>`;
+            }
+
+            showModal('Assign as Class Incharge', `
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="padding: 10px 0; border-bottom: 1px dashed #e2e8f0;">
+                        <span class="text-light">Faculty:</span>
+                        <strong style="float: right;">${name}</strong>
+                    </div>
+                    <div class="alert alert-info" style="margin: 0;">
+                        <i class="fa-solid fa-circle-info"></i> This will assign the faculty as Class Incharge for the selected semester.
+                        Any previous incharge for that semester will be unassigned.
+                    </div>
+                    <div class="form-group">
+                        <label>Assign to Semester</label>
+                        <select class="form-control" id="modalAssignSem">${semOpts}</select>
+                    </div>
+                </div>
+            `, `<button class="btn btn-success" onclick="submitAssignIncharge(${facultyId})">
+                    <i class="fa-solid fa-chalkboard-user"></i> Assign
+                </button>
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>`
+            );
+        }
+
+        async function submitAssignIncharge(facultyId) {
+            const semester = parseInt(document.getElementById('modalAssignSem').value);
+            try {
+                const res = await fetch(`${API_BASE}/api/hod/faculty/assign-incharge`, {
+                    method: 'POST',
+                    headers: authHeaders,
+                    body: JSON.stringify({ faculty_id: facultyId, semester }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast(data.detail || 'Failed to assign incharge', 'error');
+                    return;
+                }
+                showToast(data.message, 'success');
+                closeModal();
+                loadFaculty();
+            } catch (err) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        // ── Remove Faculty Confirmation ────────────────────────
+        function confirmRemoveFaculty(facultyId, name) {
+            showModal('Remove Faculty', `
+                <div class="alert alert-danger">
+                    <strong><i class="fa-solid fa-triangle-exclamation"></i> Warning:</strong>
+                    You are about to remove <strong>${name}</strong> from the IT department.
+                    Their assigned students will be unassigned and pending requests will be deleted.
+                    This action cannot be undone.
+                </div>
+            `, `<button class="btn btn-danger" onclick="submitRemoveFaculty(${facultyId})">
+                    <i class="fa-solid fa-trash"></i> Remove Permanently
+                </button>
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>`
+            );
+        }
+
+        async function submitRemoveFaculty(facultyId) {
+            try {
+                const res = await fetch(`${API_BASE}/api/hod/faculty/${facultyId}`, {
+                    method: 'DELETE',
+                    headers: authHeaders,
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast(data.detail || 'Failed to remove faculty', 'error');
+                    return;
+                }
+                showToast(data.message, 'success');
+                closeModal();
+                loadFaculty();
+                loadDashboard(); // refresh stats
+            } catch (err) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        // ── Add Faculty Modal (ClassIncharge only) ──────────────
+        document.getElementById('addFacultyBtn').addEventListener('click', () => {
+            showModal('Add New Class Incharge — IT Department', `
+                <div class="form-container">
+                    <div class="alert alert-info" style="margin-bottom: 12px;">
+                        <i class="fa-solid fa-circle-info"></i> New faculty will be added as <strong>Class Incharge</strong> for the IT department.
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" class="form-control" id="modalFacName" placeholder="e.g. Rajesh Kumar">
+                    </div>
+                    <div class="form-group">
+                        <label>Username (for login) *</label>
+                        <input type="text" class="form-control" id="modalFacUsername" placeholder="e.g. rajesh.kumar">
+                    </div>
+                    <div class="form-group">
+                        <label>Password *</label>
+                        <input type="password" class="form-control" id="modalFacPassword" placeholder="Set login password">
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select class="form-control" id="modalFacGender">
+                            <option value="">-- Select --</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                </div>
+            `, `<button class="btn btn-primary" onclick="submitAddFaculty()">
+                    <i class="fa-solid fa-plus"></i> Add Class Incharge
+                </button>
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>`
+            );
+        });
+
+        async function submitAddFaculty() {
+            const name = document.getElementById('modalFacName').value.trim();
+            const username = document.getElementById('modalFacUsername').value.trim();
+            const password = document.getElementById('modalFacPassword').value;
+            const role = 'ClassIncharge'; // HOD can only add ClassIncharge
+            const gender = document.getElementById('modalFacGender').value || null;
+
+            if (!name || !username || !password) {
+                showToast('Please fill in all required fields', 'warning');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/hod/faculty`, {
+                    method: 'POST',
+                    headers: authHeaders,
+                    body: JSON.stringify({ name, username, password, role, gender }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast(data.detail || 'Failed to add faculty', 'error');
+                    return;
+                }
+                showToast(data.message, 'success');
+                closeModal();
+                loadFaculty();
+                loadDashboard(); // refresh stats
+            } catch (err) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        // ── Generic Modal ──────────────────────────────────────
+        function showModal(title, bodyHtml, footerHtml) {
+            // Remove existing
+            const existing = document.querySelector('.modal-overlay');
+            if (existing) existing.remove();
+
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>${title}</h3>
+                        <button class="modal-close" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">${bodyHtml}</div>
+                    ${footerHtml ? `<div class="modal-footer">${footerHtml}</div>` : ''}
+                </div>
+            `;
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeModal();
+            });
+            document.body.appendChild(overlay);
+        }
+
+        function closeModal() {
+            const overlay = document.querySelector('.modal-overlay');
+            if (overlay) overlay.remove();
+        }
+
+        // ── Branch Upload ──────────────────────────────────────
+        document.getElementById('branchUploadBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('branchFile');
+            const resultDiv = document.getElementById('branchUploadResult');
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showToast('Please select a file first', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('branchUploadBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const res = await fetch(`${API_BASE}/api/hod/upload-branch`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData,
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showToast(data.detail || 'Upload failed', 'error');
+                    resultDiv.style.display = 'none';
+                    return;
+                }
+
+                let html = `<div class="alert alert-info">
+                    <strong>Upload Complete:</strong> ${data.inserted} inserted, ${data.updated} updated.`;
+                if (data.errors && data.errors.length > 0) {
+                    html += `<br><strong>Errors:</strong><ul>${data.errors.map(e => `<li>${e}</li>`).join('')}</ul>`;
+                }
+                html += '</div>';
+                resultDiv.innerHTML = html;
+                resultDiv.style.display = 'block';
+
+                showToast(`Branch data: ${data.inserted} new, ${data.updated} updated`, 'success');
+                fileInput.value = '';
+                loadDashboard();
+
+            } catch (err) {
+                console.error('Branch upload error:', err);
+                showToast('Network error during upload', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Upload Branch Data';
+            }
+        });
+
+        // ── Semester Upload ────────────────────────────────────
+        document.getElementById('semesterUploadBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('semesterFile');
+            const semSelect = document.getElementById('semesterSelect');
+            const resultDiv = document.getElementById('semesterUploadResult');
+
+            if (!semSelect.value) {
+                showToast('Please select a target semester', 'warning');
+                return;
+            }
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showToast('Please select a file first', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('semesterUploadBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const res = await fetch(`${API_BASE}/api/hod/upload-semester?semester=${semSelect.value}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData,
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showToast(data.detail || 'Upload failed', 'error');
+                    resultDiv.style.display = 'none';
+                    return;
+                }
+
+                let html = `<div class="alert alert-info">
+                    <strong>Upload Complete:</strong> ${data.inserted} inserted, ${data.updated} updated.`;
+                if (data.errors && data.errors.length > 0) {
+                    html += `<br><strong>Errors:</strong><ul>${data.errors.map(e => `<li>${e}</li>`).join('')}</ul>`;
+                }
+                html += '</div>';
+                resultDiv.innerHTML = html;
+                resultDiv.style.display = 'block';
+
+                showToast(`Semester data: ${data.inserted} new, ${data.updated} updated`, 'success');
+                fileInput.value = '';
+                loadDashboard();
+
+            } catch (err) {
+                console.error('Semester upload error:', err);
+                showToast('Network error during upload', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Upload Semester Data';
+            }
+        });
+
+        // ── Reports Download ───────────────────────────────────
+        document.querySelectorAll('[data-report]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const reportType = btn.dataset.report;
+                const origHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+                try {
+                    const res = await fetch(`${API_BASE}/api/hod/reports?report_type=${reportType}`, {
+                        headers: { 'Authorization': `Bearer ${token}` },
+                    });
+
+                    if (!res.ok) {
+                        showToast('Failed to download report', 'error');
+                        return;
+                    }
+
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${reportType}_report.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+
+                    showToast(`${reportType} report downloaded`, 'success');
+                } catch (err) {
+                    console.error('Report download error:', err);
+                    showToast('Network error', 'error');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                }
+            });
+        });
+
+        // ── Reset & Delete Data Handlers ───────────────────────
+        document.getElementById('hodResetConfirm').addEventListener('click', async () => {
+            if (!confirm('Are you ABSOLUTELY sure? This will clear ALL fine, request, and attendance data for the ENTIRE department!')) return;
+
+            const btn = document.getElementById('hodResetConfirm');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Resetting...';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/hod/reset`, {
+                    method: 'POST',
+                    headers: authHeaders,
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast(data.detail || 'Reset failed', 'error');
+                    return;
+                }
+                showToast(data.message, 'success');
+                loadDashboard();
+            } catch (err) {
+                showToast('Network error during reset', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Confirm Department Reset';
+            }
+        });
+
+        document.getElementById('deleteSemesterConfirm').addEventListener('click', async () => {
+            const sem = document.getElementById('deleteSemesterSelect').value;
+            if (!sem) {
+                showToast('Please select a semester to delete', 'warning');
+                return;
+            }
+
+            if (!confirm(`Are you ABSOLUTELY sure you want to delete ALL STUDENTS and data for Semester ${sem}? This cannot be undone!`)) return;
+
+            const btn = document.getElementById('deleteSemesterConfirm');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Deleting...';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/hod/semester/${sem}`, {
+                    method: 'DELETE',
+                    headers: authHeaders,
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast(data.detail || 'Deletion failed', 'error');
+                    return;
+                }
+                showToast(data.message, 'success');
+                // Reload semesters after deletion
+                loadDeleteSemesters();
+                loadDashboard();
+            } catch (err) {
+                showToast('Network error during deletion', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Delete Semester Data';
+            }
+        });
+
+        async function loadDeleteSemesters() {
+            const select = document.getElementById('deleteSemesterSelect');
+            select.innerHTML = '<option value="">-- Loading... --</option>';
+            try {
+                const res = await fetch(`${API_BASE}/api/hod/semesters`, {
+                    headers: authHeaders
+                });
+                const semData = await res.json();
+
+                if (!res.ok) throw new Error('Failed to load semesters');
+
+                select.innerHTML = '<option value="">-- Select Semester --</option>';
+                if (semData.length === 0) {
+                    select.innerHTML = '<option value="">-- No Semesters Available --</option>';
+                    return;
+                }
+
+                // Sort by semester number to be safe
+                semData.sort((a, b) => a.semester - b.semester).forEach(s => {
+                    select.innerHTML += `<option value="${s.semester}">${semesterLabel(s.semester)} (${s.student_count} Students)</option>`;
+                });
+            } catch (err) {
+                console.error(err);
+                select.innerHTML = '<option value="">-- Error loading semesters --</option>';
+            }
+        }
+
+        // ── Sidebar Section Change Listeners ───────────────────
+        // When user clicks sidebar, load appropriate data
+        document.getElementById('nav-overview').addEventListener('click', () => {
+            loadDashboard();
+        });
+
+        document.getElementById('nav-faculty').addEventListener('click', () => {
+            loadFaculty();
+        });
+
+        document.getElementById('nav-requests').addEventListener('click', () => {
+            loadSemesters();
+        });
+
+        document.getElementById('nav-reset').addEventListener('click', () => {
+            loadDeleteSemesters();
+        });
+
+        // ── Notification Bell ──────────────────────────────────
+        document.getElementById('notifBtn').addEventListener('click', () => {
+            if (overviewData && overviewData.pending_requests > 0) {
+                showToast(`${overviewData.pending_requests} pending approval(s) awaiting your action`, 'warning');
+                // Navigate to approvals
+                document.getElementById('view-requests-dash').checked = true;
+                loadSemesters();
+            } else {
+                showToast('No new notifications', 'success');
+            }
+        });
+
+        // ── Logout Handlers ────────────────────────────────────
+        function doLogout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_role');
+            localStorage.removeItem('token_role');
+            localStorage.removeItem('token_sub');
+            window.location.href = '/';
+        }
+
+        document.getElementById('sidebarLogout').addEventListener('click', (e) => {
+            e.preventDefault();
+            doLogout();
+        });
+        document.getElementById('headerLogout').addEventListener('click', doLogout);
+
+        // ── Database Insights ──────────────────────────────────
+        async function fetchDBInsights() {
+            try {
+                const res = await fetch(`${API_BASE}/api/hod/db-insights`, {
+                    headers: authHeaders
+                });
+                if (!res.ok) throw new Error("Failed to fetch DB insights");
+                const data = await res.json();
+                
+                const grid = document.getElementById("hod-db-insights");
+                grid.innerHTML = "";
+                
+                if (data.insights.length === 0) {
+                    grid.innerHTML = `<p class="no-data" style="grid-column: 1/-1;">No class incharge data available for this branch.</p>`;
+                    return;
+                }
+
+                data.insights.forEach((insight, index) => {
+                    const card = document.createElement("div");
+                    card.className = "insight-item";
+                    
+                    // Alternate colors for variety
+                    const colors = [
+                        { bg: '#eff6ff', color: '#1e40af' }, // Blue
+                        { bg: '#f0fdf4', color: '#166534' }, // Green
+                        { bg: '#fefce8', color: '#854d0e' }, // Yellow
+                        { bg: '#fef2f2', color: '#991b1b' }  // Red
+                    ];
+                    const theme = colors[index % colors.length];
+
+                    card.innerHTML = `
+                        <div class="insight-icon" style="background: ${theme.bg}; color: ${theme.color};">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                        </div>
+                        <div class="insight-value">${insight.total_students}</div>
+                        <div class="insight-label">
+                            ${insight.branch} - ${insight.semester}th Sem <br>
+                            <span style="font-size:0.75rem; font-weight: 500;">${insight.incharge_name}</span>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+                
+                // Render Demographics
+                if(data.overall_stats) {
+                    const demoGrid = document.getElementById("hod-student-demographics");
+                    if(demoGrid) {
+                        demoGrid.innerHTML = `
+                            <div class="insight-item">
+                                <div class="insight-icon" style="background: #eff6ff; color: #1e40af;">
+                                    <i class="fa-solid fa-building"></i>
+                                </div>
+                                <div class="insight-value">${data.overall_stats.total_hosteller}</div>
+                                <div class="insight-label">Hostellers</div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon" style="background: #fefce8; color: #854d0e;">
+                                    <i class="fa-solid fa-flag"></i>
+                                </div>
+                                <div class="insight-value">${data.overall_stats.total_ncc}</div>
+                                <div class="insight-label">NCC Cadets</div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon" style="background: #f0fdf4; color: #166534;">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div class="insight-value">${data.overall_stats.total_accepted}</div>
+                                <div class="insight-label">Paid</div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon" style="background: #fef2f2; color: #991b1b;">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                </div>
+                                <div class="insight-value">${data.overall_stats.total_pending}</div>
+                                <div class="insight-label">Unpaid</div>
+                            </div>
+                        `;
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // ── Boot ───────────────────────────────────────────────
+        loadDashboard();
+        fetchDBInsights();
+        // ── Auto Refresh (Automatically reflect changes) ────────
+        setInterval(() => {
+            if (mainContent.style.display !== 'none') {
+                 loadDashboard();
+            }
+        }, 30000); // Every 30 seconds
+    </script>
+</body>
+
+</html>

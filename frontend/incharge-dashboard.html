@@ -1,0 +1,1896 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Incharge Dashboard | GPH Automated Fine Payment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/font-awesome.css">
+    <link rel="stylesheet" href="/static/incharge-dashboard.css">
+    <style>
+        /* AI Progress Modal */
+        .ai-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+        .ai-modal-card {
+            background: #fff;
+            color: #1e293b;
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .ai-steps {
+            text-align: left;
+            margin: 1.5rem 0;
+        }
+        .ai-step {
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0.4;
+            transition: all 0.3s ease;
+        }
+        .ai-step.active {
+            opacity: 1;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .ai-step.done {
+            opacity: 1;
+            color: #10b981;
+        }
+        .ai-step i {
+            width: 20px;
+            text-align: center;
+        }
+        .ai-pulse {
+            width: 80px;
+            height: 80px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            position: relative;
+        }
+        .ai-pulse i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            z-index: 2;
+        }
+        .ai-pulse::after {
+            content: '';
+            position: absolute;
+            width: 100%; height: 100%;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: pulse-ring 1.5s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .subject-search-container {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        .subject-search-container i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+        .subject-search-container input {
+            padding-left: 35px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>GPH</h2>
+                    <p>Fine Portal</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="#" data-section="overview"><i class="fa-solid fa-chart-pie"></i>
+                            <span>Overview</span></a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="requests"><i class="fa-solid fa-code-pull-request"></i>
+                            <span>Requests</span></a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="reports"><i class="fa-solid fa-file-contract"></i>
+                            <span>Reports</span></a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="attendance"><i class="fa-solid fa-camera"></i>
+                            <span>Attendance AI</span></a>
+                    </li>
+                    <li class="danger-menu">
+                        <a href="#" data-section="reset"><i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>Reset Data</span></a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="#" class="logout-link" id="sidebarLogout"><i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span></a>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper">
+            <!-- Background Overlay -->
+            <div class="bg-overlay"></div>
+
+            <!-- Header -->
+            <header class="top-header">
+                <div class="welcome-text animated-fade">
+                    <h1>Welcome, <span id="headerName">---</span> <span class="wave-emoji">👋</span></h1>
+                    <p id="headerSubtitle">Class Incharge</p>
+                </div>
+
+                <div class="header-illustration">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z"
+                            fill="#1e3a8a" fill-opacity="0.1" />
+                        <path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z"
+                            stroke="#1e3a8a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+
+                <div class="header-actions">
+                    <button class="icon-btn" title="Notifications"><i class="fa-regular fa-bell"></i></button>
+                    <button class="logout-btn-small" title="Logout" id="headerLogout"><i
+                            class="fa-solid fa-power-off"></i></button>
+                </div>
+            </header>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-overlay">
+                <div class="spinner"></div>
+                <p class="loading-text">Loading your dashboard...</p>
+            </div>
+
+            <!-- Main Content -->
+            <main class="content-area" id="mainContent" style="display: none;">
+
+                <!-- ═══════════════════════════════════════════════════════
+                     SECTION 1: OVERVIEW + UPLOAD
+                     ═══════════════════════════════════════════════════════ -->
+                <div id="sec-overview" class="dashboard-section">
+                    <section class="card snapshot-card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-chart-pie"></i> Overview</h3>
+                            <span class="status-badge status-info" id="overviewBranch">Branch: ---</span>
+                        </div>
+                        <div class="snapshot-grid">
+                            <div class="info-item">
+                                <label>Total Students</label>
+                                <div class="info-value" id="statStudents">0</div>
+                            </div>
+                            <div class="info-item">
+                                <label>Total Fine Generated</label>
+                                <div class="info-value" id="statTotalFine">₹ 0</div>
+                            </div>
+                            <div class="info-item">
+                                <label>Total Fine Collected</label>
+                                <div class="info-value text-green" id="statCollected">₹ 0</div>
+                            </div>
+                            <div class="info-item">
+                                <label>Remaining Fine</label>
+                                <div class="info-value text-red" id="statRemaining">₹ 0</div>
+                            </div>
+                            <div class="info-item">
+                                <label>Pending Requests</label>
+                                <div class="info-value"><span class="badge badge-pending badge-pulse"
+                                        id="statPending">0</span></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Students DB Insights -->
+                    <section class="card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-database"></i> Students DB Insights</h3>
+                        </div>
+                        <div class="student-insights-grid">
+                            <div class="insight-stat-card">
+                                <div class="progress-circle">
+                                    <svg viewBox="0 0 36 36">
+                                        <path class="circle-bg"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" id="insightTheoryProgress" stroke="#1e3a8a"
+                                            stroke-dasharray="0, 100"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    </svg>
+                                    <div class="percentage" id="insightTheoryPct">0%</div>
+                                </div>
+                                <p>Avg Theory</p>
+                            </div>
+                            <div class="insight-stat-card">
+                                <div class="progress-circle">
+                                    <svg viewBox="0 0 36 36">
+                                        <path class="circle-bg"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" id="insightPracticalProgress" stroke="#10b981"
+                                            stroke-dasharray="0, 100"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    </svg>
+                                    <div class="percentage" id="insightPracticalPct">0%</div>
+                                </div>
+                                <p>Avg Practical</p>
+                            </div>
+                            <div class="insight-count-card">
+                                <div class="count-icon"><i class="fa-solid fa-building"></i></div>
+                                <div class="count-value" id="insightHostellers">0</div>
+                                <div class="count-label">Hostellers</div>
+                            </div>
+                            <div class="insight-count-card">
+                                <div class="count-icon ncc"><i class="fa-solid fa-flag"></i></div>
+                                <div class="count-value" id="insightNCC">0</div>
+                                <div class="count-label">NCC Cadets</div>
+                            </div>
+                            <div class="insight-count-card">
+                                <div class="count-icon paid"><i class="fa-solid fa-circle-check"></i></div>
+                                <div class="count-value" id="insightPaid">0</div>
+                                <div class="count-label">Paid</div>
+                            </div>
+                            <div class="insight-count-card">
+                                <div class="count-icon unpaid"><i class="fa-solid fa-circle-xmark"></i></div>
+                                <div class="count-value" id="insightUnpaid">0</div>
+                                <div class="count-label">Unpaid</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-upload"></i> Upload Fine Data</h3>
+                        </div>
+                        <div class="form-container">
+                            <div class="form-group">
+                                <label>Upload Excel or PDF File</label>
+                                <input type="file" class="form-control" id="fineFile" accept=".xlsx,.pdf">
+                            </div>
+                            <div class="alert alert-info">
+                                <strong><i class="fa-solid fa-circle-info"></i> Note:</strong> Excel file must contain
+                                columns: <code>roll_no</code>, <code>amount</code>, <code>semester</code>.
+                                Optional: <code>theory_attendance</code>, <code>practical_attendance</code> (updates
+                                student records).
+                            </div>
+                            <div id="uploadResult" style="display:none;"></div>
+                            <button class="btn btn-primary" id="uploadBtn" style="width: 100%;">
+                                <i class="fa-solid fa-check"></i> Upload Fines
+                            </button>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════════
+                     SECTION 2: REQUESTS MODULE
+                     ═══════════════════════════════════════════════════════ -->
+                <div id="sec-requests" class="dashboard-section" style="display:none;">
+
+                    <!-- 2a: Requests Dashboard (Semester Cards) -->
+                    <div id="reqDashView">
+                        <h2 class="section-title-transparent"><i class="fa-solid fa-code-pull-request"></i> Fine
+                            Requests Dashboard</h2>
+
+                        <section class="card animated-card snapshot-card mb-2">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-chart-line"></i> Request Summary</h3>
+                            </div>
+                            <div class="snapshot-grid" style="grid-template-columns: repeat(3, 1fr);">
+                                <div class="info-item">
+                                    <label>Pending</label>
+                                    <div class="info-value"><span class="badge badge-pending badge-pulse"
+                                            id="reqInsightPending">0</span></div>
+                                </div>
+                                <div class="info-item">
+                                    <label>Approved</label>
+                                    <div class="info-value"><span class="badge badge-approved"
+                                            id="reqInsightApproved">0</span></div>
+                                </div>
+                                <div class="info-item">
+                                    <label>Rejected</label>
+                                    <div class="info-value"><span class="badge badge-rejected"
+                                            id="reqInsightRejected">0</span></div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="semester-cards-grid" id="semesterCards">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- 2b: Student List for a Semester -->
+                    <div id="reqListView" style="display:none;">
+                        <div class="header-with-back mb-2">
+                            <button class="btn btn-outline btn-sm back-btn" id="backToSemesters">
+                                <i class="fa-solid fa-arrow-left"></i> Back to Semesters
+                            </button>
+                            <h2 style="margin: 0;" id="listSemTitle">Semester Requests</h2>
+                        </div>
+
+                        <section class="card animated-card">
+                            <div class="table-responsive">
+                                <table class="approval-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Student</th>
+                                            <th>Roll No</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Note</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="studentListBody">
+                                        <tr>
+                                            <td colspan="6" class="no-data">No students found.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- 2c: Student Profile Detail -->
+                    <div id="reqProfileView" style="display:none;">
+                        <div class="header-with-back mb-2">
+                            <button class="btn btn-outline btn-sm back-btn" id="backToList">
+                                <i class="fa-solid fa-arrow-left"></i> Back to Class List
+                            </button>
+                        </div>
+
+                        <div class="profile-header card animated-card mb-2">
+                            <div class="avatar-lg" id="profileAvatar">?</div>
+                            <div>
+                                <h2 id="profileName" style="margin: 0; color: var(--primary-color);">---</h2>
+                                <p class="text-light" style="margin: 5px 0 0 0;" id="profileSubtitle">---</p>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-grid profile-grid">
+                            <section class="card animated-card">
+                                <div class="card-header">
+                                    <h3><i class="fa-solid fa-user-graduate"></i> Academic Standing</h3>
+                                </div>
+                                <div class="profile-details-grid" id="profileDetailsGrid">
+                                    <!-- Filled by JS -->
+                                </div>
+                            </section>
+
+                            <section class="card animated-card">
+                                <div class="card-header">
+                                    <h3><i class="fa-solid fa-timeline"></i> Faculty Approval Status</h3>
+                                </div>
+                                <div class="timeline-container" id="profileTimeline">
+                                    <!-- Filled by JS -->
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════════
+                     SECTION 3: REPORTS
+                     ═══════════════════════════════════════════════════════ -->
+                <div id="sec-reports" class="dashboard-section" style="display:none;">
+                    <section class="card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-file-contract"></i> Reports Hub</h3>
+                        </div>
+                        <div class="reports-container">
+                            <div class="report-item">
+                                <span><i class="fa-solid fa-file-invoice" style="margin-right: 8px;"></i> Paid Students
+                                    List</span>
+                                <button class="btn btn-primary btn-sm" data-report="paid"><i
+                                        class="fa-solid fa-download"></i></button>
+                            </div>
+                            <div class="report-item">
+                                <span><i class="fa-solid fa-file-excel" style="margin-right: 8px;"></i> Unpaid Students
+                                    List</span>
+                                <button class="btn btn-primary btn-sm" data-report="unpaid"><i
+                                        class="fa-solid fa-download"></i></button>
+                            </div>
+                            <div class="report-item">
+                                <span><i class="fa-solid fa-calendar-days" style="margin-right: 8px;"></i> Monthly Fine
+                                    Summary Report</span>
+                                <button class="btn btn-primary btn-sm" data-report="monthly"><i
+                                        class="fa-solid fa-download"></i></button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════════
+                     SECTION 4: ATTENDANCE AI
+                     ═══════════════════════════════════════════════════════ -->
+                <div id="sec-attendance" class="dashboard-section" style="display:none;">
+
+                    <!-- Manual Attendance Entry -->
+                    <section class="card animated-card" style="overflow: visible;">
+                        <div class="card-header" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: #fff; border-radius: 12px 12px 0 0; padding: 18px 24px;">
+                            <h3 style="color:#fff;"><i class="fa-solid fa-pen-to-square"></i> Manual Attendance Entry</h3>
+                        </div>
+                        <div class="form-container" style="padding: 24px;">
+                            <div class="alert alert-info" style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                                <div>
+                                    <strong><i class="fa-solid fa-circle-info"></i> How it works:</strong><br>
+                                    Select a subject and total classes. Then choose how you want to input data.
+                                </div>
+                                <div style="display: flex; gap: 8px; background: #fff; padding: 6px; border-radius: 8px;">
+                                    <button class="btn btn-sm btn-primary" id="modeManualBtn" style="min-width: 100px;">Manual Input</button>
+                                    <button class="btn btn-sm btn-outline" id="modeAIBtn" style="min-width: 100px; color: #6366f1; border-color: #c7d2fe;">AI Upload</button>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                <div class="form-group" style="margin-bottom: 0; display: none;" id="attSemesterContainer">
+                                    <label style="font-weight: 600; margin-bottom: 6px; display: block;">Semester</label>
+                                    <select class="form-control" id="attSemester" style="padding: 10px 14px; border-radius: 8px;">
+                                        <option value="1">1st Semester</option>
+                                        <option value="2">2nd Semester</option>
+                                        <option value="3">3rd Semester</option>
+                                        <option value="4" selected>4th Semester</option>
+                                        <option value="5">5th Semester</option>
+                                        <option value="6">6th Semester</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label style="font-weight: 600; margin-bottom: 6px; display: block;">Subject</label>
+                                    <select class="form-control" id="attSubject" style="padding: 10px 14px; border-radius: 8px;">
+                                        <!-- Populated via JS -->
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label style="font-weight: 600; margin-bottom: 6px; display: block;">Total Classes</label>
+                                    <input type="number" class="form-control" id="attTotalClasses" min="1" max="150" placeholder="e.g. 30" style="padding: 10px 14px; border-radius: 8px;">
+                                </div>
+                            </div>
+
+                            <div id="dynamicInputContainer">
+                                <!-- Load Button -->
+                                <button class="btn btn-primary" id="attLoadBtn" style="width: 100%; padding: 14px; font-size: 1rem; border-radius: 10px; background: linear-gradient(135deg, #1e3a8a, #3b82f6); border: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <i class="fa-solid fa-users-viewfinder"></i> Load Students
+                                </button>
+
+                                <!-- AI Upload Dropzone (Hidden by default) -->
+                                <div id="attUploadZone" style="display: none;">
+                                    <div class="form-group" style="margin-bottom: 16px;">
+                                        <label style="font-weight: 600; margin-bottom: 6px; display: block;">Upload Register Image</label>
+                                        <div style="border: 2px dashed #cbd5e1; border-radius: 10px; padding: 20px; text-align: center; background: #f8fafc; cursor: pointer; transition: all 0.3s ease;" onclick="document.getElementById('attImageFile').click()">
+                                            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: #94a3b8; margin-bottom: 10px;"></i>
+                                            <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Click to browse or drag image here</p>
+                                            <input type="file" id="attImageFile" accept="image/*" style="display: none;">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Image Preview -->
+                                    <div id="attImagePreview" style="display: none; margin-bottom: 16px; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0;">
+                                        <img id="attPreviewImg" style="width: 100%; height: auto; max-height: 200px; object-fit: contain; background: #000; display: block;">
+                                    </div>
+
+                                    <button class="btn btn-primary" id="attUploadBtn" style="width: 100%; padding: 14px; font-size: 1rem; border-radius: 10px; background: linear-gradient(135deg, #8b5cf6, #6366f1); border: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i> Extract with AI
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Extracted Data Preview & Editor -->
+                    <section class="card animated-card" id="attExtractedCard" style="display: none;">
+                        <div class="card-header" style="justify-content: space-between; display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+                            <div>
+                                <h3><i class="fa-solid fa-table-list"></i> Data — <span id="attExtractedTitle">Subject</span></h3>
+                                <span class="status-badge status-info" id="attExtractedBadge">Theory</span>
+                            </div>
+                            <button class="btn btn-primary btn-sm" id="attSaveCorrectionsBtn" style="display: none;"><i class="fa-solid fa-save"></i> Save Corrections</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="approval-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Roll No</th>
+                                        <th>Name</th>
+                                        <th>Total Classes</th>
+                                        <th>Attended</th>
+                                        <th>Absent</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attExtractedBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Uploaded Subjects -->
+                    <section class="card animated-card" id="attSubjectsCard">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-book-open"></i> Uploaded Subjects</h3>
+                            <button class="btn btn-outline btn-sm" id="attRefreshSubjects" style="font-size: 0.8rem;"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                        </div>
+                        <div id="attSubjectsList" style="padding: 16px;">
+                            <div class="no-data" style="padding: 30px; text-align: center; color: #94a3b8;">No subjects uploaded yet. Upload a register image above.</div>
+                        </div>
+                    </section>
+
+                    <!-- Aggregated Summary -->
+                    <section class="card animated-card" id="attSummaryCard" style="display: none;">
+                        <div class="card-header" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #fff; border-radius: 12px 12px 0 0; padding: 18px 24px;">
+                            <h3 style="color:#fff;"><i class="fa-solid fa-calculator"></i> Aggregated Attendance Summary</h3>
+                        </div>
+                        
+                        <div id="attIncompleteWarning" class="alert alert-warning" style="margin: 16px; display: none;">
+                            <strong><i class="fa-solid fa-clock"></i> Incomplete:</strong> Please upload all required subjects for this semester to unlock fine calculation and finalization.
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="approval-table">
+                                <thead>
+                                    <tr style="background: #f0fdf4;">
+                                        <th>Roll No</th>
+                                        <th>Name</th>
+                                        <th>Total Theory</th>
+                                        <th>Att. Theory</th>
+                                        <th>Total Lab</th>
+                                        <th>Att. Lab</th>
+                                        <th>Absent (T+L)</th>
+                                        <th class="att-calc-col" style="display: none;">Fine (₹)</th>
+                                        <th class="att-calc-col" style="display: none;">Theory %</th>
+                                        <th class="att-calc-col" style="display: none;">Practical %</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attSummaryBody">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="padding: 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                            <div id="attSummaryStats" style="color: #64748b; font-size: 0.9rem;"></div>
+                            <button class="btn btn-primary" id="attFinalizeBtn" style="padding: 12px 28px; font-size: 1rem; border-radius: 10px; background: linear-gradient(135deg, #059669, #10b981); border: none; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-check-double"></i> Finalize & Calculate Fines
+                            </button>
+                        </div>
+                    </section>
+
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════════
+                     SECTION 5: RESET DATA
+                     ═══════════════════════════════════════════════════════ -->
+                <div id="sec-reset" class="dashboard-section" style="display:none;">
+                    <section class="card animated-card danger-zone-card">
+                        <div class="card-header danger-header">
+                            <h3><i class="fa-solid fa-triangle-exclamation"></i> Reset System Data</h3>
+                        </div>
+                        <div class="danger-content">
+                            <div class="alert alert-danger mb-2">
+                                <strong><i class="fa-solid fa-radiation"></i> WARNING:</strong> This will permanently
+                                clear all semester fine data, requests, attendance records, and reports for your branch!
+                            </div>
+                            <div class="action-bar" style="border-top: none; padding-top: 0;">
+                                <button class="btn btn-outline" style="border-color: #cbd5e1; color: #64748b;"
+                                    id="resetCancel">Cancel</button>
+                                <button class="btn btn-danger" id="resetConfirm"><i class="fa-solid fa-trash-can"></i>
+                                    Confirm System Reset</button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // ── Config ──────────────────────────────────────────────
+        const API_BASE = '';
+        const token = localStorage.getItem('access_token');
+
+        // ── Auth Guard ──────────────────────────────────────────
+        if (!token) {
+            window.location.href = '/';
+        }
+
+        const authHeaders = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        };
+
+        // ── DOM References ──────────────────────────────────────
+        const loadingState = document.getElementById('loadingState');
+        const mainContent = document.getElementById('mainContent');
+
+        // Sections
+        const sections = {
+            overview: document.getElementById('sec-overview'),
+            requests: document.getElementById('sec-requests'),
+            reports: document.getElementById('sec-reports'),
+            attendance: document.getElementById('sec-attendance'),
+            reset: document.getElementById('sec-reset'),
+        };
+
+        // Request sub-views
+        const reqDashView = document.getElementById('reqDashView');
+        const reqListView = document.getElementById('reqListView');
+        const reqProfileView = document.getElementById('reqProfileView');
+
+        // Track current semester for list view
+        let currentSemester = null;
+
+        // ── Helpers ─────────────────────────────────────────────
+        function showToast(message, type = 'success') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        function semesterLabel(num) {
+            const suffixes = { 1: 'st', 2: 'nd', 3: 'rd' };
+            return `${num}${suffixes[num] || 'th'} Semester`;
+        }
+
+        // ── Section Switching ───────────────────────────────────
+        function showSection(name) {
+            Object.keys(sections).forEach(key => {
+                sections[key].style.display = key === name ? 'block' : 'none';
+            });
+            // Reset request sub-views when switching to requests
+            if (name === 'requests') {
+                reqDashView.style.display = 'block';
+                reqListView.style.display = 'none';
+                reqProfileView.style.display = 'none';
+            }
+        }
+
+        // ── Sidebar Navigation ──────────────────────────────────
+        document.querySelectorAll('.sidebar-nav a[data-section]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+                link.parentElement.classList.add('active');
+                showSection(link.dataset.section);
+            });
+        });
+
+        // ── Load Dashboard Data ─────────────────────────────────
+        async function loadDashboard() {
+            try {
+                const res = await fetch(`${API_BASE}/api/incharge/overview`, {
+                    headers: authHeaders,
+                });
+
+                if (res.status === 401) {
+                    localStorage.clear();
+                    window.location.href = '/';
+                    return;
+                }
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    showToast(err.detail || 'Failed to load dashboard', 'error');
+                    return;
+                }
+
+                const data = await res.json();
+                populateOverview(data);
+
+                // Also load semesters
+                await loadSemesters();
+
+                loadingState.style.display = 'none';
+                mainContent.style.display = 'flex';
+
+            } catch (err) {
+                console.error('Dashboard load error:', err);
+                showToast('Network error. Please try again.', 'error');
+            }
+        }
+
+        function animateCircle(el, percent) {
+            let current = 0;
+            const step = percent / 30;
+            const interval = setInterval(() => {
+                current += step;
+                if (current >= percent) {
+                    current = percent;
+                    clearInterval(interval);
+                }
+                el.setAttribute('stroke-dasharray', `${current}, 100`);
+            }, 20);
+        }
+
+        function populateOverview(data) {
+            document.getElementById('headerName').textContent = data.faculty_name;
+            document.getElementById('headerSubtitle').textContent =
+                `Class Incharge (${data.branch})`;
+            document.getElementById('overviewBranch').textContent = `Branch: ${data.branch}`;
+
+            document.getElementById('statStudents').textContent = data.total_students;
+            document.getElementById('statTotalFine').textContent = `₹ ${data.total_fine.toLocaleString('en-IN')}`;
+            document.getElementById('statCollected').textContent = `₹ ${data.collected.toLocaleString('en-IN')}`;
+            document.getElementById('statRemaining').textContent = `₹ ${data.remaining.toLocaleString('en-IN')}`;
+            document.getElementById('statPending').textContent = data.pending_requests;
+
+            // Students DB Insights — attendance SVG circles
+            const theory = Math.round(data.avg_theory_attendance || 0);
+            const practical = Math.round(data.avg_practical_attendance || 0);
+            document.getElementById('insightTheoryPct').textContent = `${theory}%`;
+            document.getElementById('insightPracticalPct').textContent = `${practical}%`;
+            animateCircle(document.getElementById('insightTheoryProgress'), theory);
+            animateCircle(document.getElementById('insightPracticalProgress'), practical);
+
+            // Count cards
+            document.getElementById('insightHostellers').textContent = data.hosteller_count || 0;
+            document.getElementById('insightNCC').textContent = data.ncc_count || 0;
+            document.getElementById('insightPaid').textContent = data.paid_count || 0;
+            document.getElementById('insightUnpaid').textContent = data.unpaid_count || 0;
+
+            // Request summary badges (in Requests section)
+            document.getElementById('reqInsightPending').textContent = data.pending_requests;
+            document.getElementById('reqInsightApproved').textContent = data.approved_requests;
+            document.getElementById('reqInsightRejected').textContent = data.rejected_requests;
+        }
+
+        // ── Load Semesters ──────────────────────────────────────
+        async function loadSemesters() {
+            try {
+                const res = await fetch(`${API_BASE}/api/incharge/semesters`, {
+                    headers: authHeaders,
+                });
+                if (!res.ok) return;
+
+                const semesters = await res.json();
+                if (semesters.length > 0) {
+                    const select = document.getElementById('attSemester');
+                    if(select) {
+                        select.value = semesters[0].semester;
+                        if (typeof populateSubjects === 'function') populateSubjects();
+                    }
+                }
+                const container = document.getElementById('semesterCards');
+                container.innerHTML = '';
+
+                semesters.forEach(sem => {
+                    const card = document.createElement('div');
+                    card.className = 'semester-card';
+                    card.innerHTML = `
+                        <div class="sem-icon"><i class="fa-solid fa-building-columns"></i></div>
+                        <h3>IT ${semesterLabel(sem.semester)}</h3>
+                        <p>${sem.pending_requests} Pending Requests</p>
+                        <div class="card-action-hint">Manage Class <i class="fa-solid fa-arrow-right"></i></div>
+                    `;
+                    card.addEventListener('click', () => showStudentList(sem.semester));
+                    container.appendChild(card);
+                });
+
+            } catch (err) {
+                console.error('Semesters load error:', err);
+            }
+        }
+
+        // ── Show Student List for Semester ───────────────────────
+        async function showStudentList(semester) {
+            currentSemester = semester;
+            document.getElementById('listSemTitle').textContent =
+                `IT ${semesterLabel(semester)} Requests`;
+
+            reqDashView.style.display = 'none';
+            reqListView.style.display = 'block';
+            reqProfileView.style.display = 'none';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/incharge/students?semester=${semester}`, {
+                    headers: authHeaders,
+                });
+                if (!res.ok) return;
+
+                const students = await res.json();
+                const tbody = document.getElementById('studentListBody');
+
+                if (students.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="no-data">No students found.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = students.map(s => {
+                    const initial = s.name.charAt(0);
+                    let badge = '';
+                    let actions = '';
+
+                    if (s.request_status === 'Pending') {
+                        badge = '<span class="badge badge-pending badge-pulse">Pending</span>';
+                        actions = `
+                            <div class="action-btn-group">
+                                <button class="btn btn-success btn-sm" title="Approve"
+                                    onclick="updateRequest(${s.request_id}, 'Approved', this)">
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" title="Reject"
+                                    onclick="updateRequest(${s.request_id}, 'Rejected', this)">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>`;
+                    } else if (s.request_status === 'Approved') {
+                        badge = '<span class="badge badge-approved">Approved</span>';
+                        actions = '<span class="text-light"><i class="fa-solid fa-lock"></i> Locked</span>';
+                    } else if (s.request_status === 'Rejected') {
+                        badge = '<span class="badge badge-rejected">Rejected</span>';
+                        actions = `<div class="action-btn-group">
+                            <span class="text-light"><i class="fa-solid fa-lock"></i> Locked</span>
+                            <button class="btn btn-warning btn-sm" title="Unlock"
+                                onclick="updateRequest(${s.request_id}, 'Pending', this)">
+                                <i class="fa-solid fa-unlock"></i>
+                            </button>
+                        </div>`;
+                    } else {
+                        badge = '<span class="badge" style="background:#f1f5f9;color:#64748b;">No Request</span>';
+                        actions = '—';
+                    }
+
+                    const noteValue = s.request_note || '';
+                    const noteDisabled = s.request_status !== 'Pending' ? 'disabled' : '';
+
+                    return `<tr>
+                        <td class="clickable-cell">
+                            <span class="student-link" onclick="showStudentProfile('${s.roll_no}')">
+                                <div class="avatar-sm">${initial}</div> ${s.name}
+                            </span>
+                        </td>
+                        <td>${s.roll_no}</td>
+                        <td><span class="fine-amount">₹ ${s.fine_amount}</span></td>
+                        <td class="status-cell">${badge}</td>
+                        <td><input type="text" class="form-control form-control-sm grid-note-input" 
+                            id="note-${s.request_id}" placeholder="Add note..." value="${noteValue}" ${noteDisabled}></td>
+                        <td class="action-cell">${actions}</td>
+                    </tr>`;
+                }).join('');
+
+            } catch (err) {
+                console.error('Student list error:', err);
+                showToast('Failed to load students', 'error');
+            }
+        }
+
+        // ── Update Request (Approve / Reject) ────────────────────
+        async function updateRequest(requestId, newStatus, btnEl) {
+            if (!requestId) {
+                showToast('No request to update', 'warning');
+                return;
+            }
+
+            const noteInput = document.getElementById(`note-${requestId}`);
+            const note = noteInput ? noteInput.value.trim() : '';
+
+            btnEl.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/faculty/update-request/${requestId}`, {
+                    method: 'POST',
+                    headers: authHeaders,
+                    body: JSON.stringify({ status: newStatus, note: note || null }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showToast(data.detail || 'Failed to update request', 'error');
+                    btnEl.disabled = false;
+                    return;
+                }
+
+                showToast(`Request ${newStatus.toLowerCase()} successfully`, 'success');
+
+                // Dynamic UI Update: Update the row immediately
+                const row = btnEl.closest('tr');
+                if (row) {
+                    const statusCell = row.querySelector('.status-cell');
+                    const actionCell = row.querySelector('.action-cell');
+                    
+                    if (statusCell) {
+                        statusCell.innerHTML = `<span class="badge badge-${newStatus.toLowerCase() === 'approved' ? 'approved' : 'rejected'}">${newStatus}</span>`;
+                    }
+                    if (actionCell) {
+                        actionCell.innerHTML = `
+                            <div class="action-btn-group">
+                                <span class="text-light"><i class="fa-solid fa-lock"></i> Locked</span>
+                                <button class="btn btn-warning btn-sm" title="Unlock" 
+                                    onclick="updateRequest(${requestId}, 'Pending', this)">
+                                    <i class="fa-solid fa-unlock"></i>
+                                </button>
+                            </div>`;
+                    }
+                }
+
+                // Sync with server in background
+                loadDashboard();
+
+            } catch (err) {
+                console.error('Update error:', err);
+                showToast('Network error', 'error');
+                btnEl.disabled = false;
+            }
+        }
+
+        // ── Show Student Profile ────────────────────────────────
+        async function showStudentProfile(rollNo) {
+            reqDashView.style.display = 'none';
+            reqListView.style.display = 'none';
+            reqProfileView.style.display = 'block';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/incharge/student/${rollNo}`, {
+                    headers: authHeaders,
+                });
+                if (!res.ok) {
+                    showToast('Failed to load profile', 'error');
+                    return;
+                }
+
+                const p = await res.json();
+
+                document.getElementById('profileAvatar').textContent = p.name.charAt(0);
+                document.getElementById('profileName').textContent = p.name;
+                document.getElementById('profileSubtitle').innerHTML =
+                    `<i class="fa-solid fa-id-card"></i> ${p.roll_no} | ${semesterLabel(p.semester)} (${p.branch})`;
+
+                // Academic details
+                const detailsGrid = document.getElementById('profileDetailsGrid');
+                detailsGrid.innerHTML = `
+                    <div class="detail-row"><span class="label">Practical Attendance:</span>
+                        <span class="value">${Math.round(p.practical_attendance)}%</span></div>
+                    <div class="detail-row"><span class="label">Theory Attendance:</span>
+                        <span class="value">${Math.round(p.theory_attendance)}%</span></div>
+                    <div class="detail-row"><span class="label">Total Fine Generated:</span>
+                        <span class="value">₹ ${p.total_fine.toLocaleString('en-IN')}</span></div>
+                    <div class="detail-row"><span class="label">Total Fine Paid:</span>
+                        <span class="value text-green">₹ ${p.paid.toLocaleString('en-IN')}</span></div>
+                    <div class="detail-row" style="grid-column: span 2;"><span class="label">Current Remaining Fine:</span>
+                        <span class="value text-red" style="font-size: 1.1rem; font-weight: bold;">₹ ${p.remaining.toLocaleString('en-IN')}</span></div>
+                `;
+
+                // Approval timeline
+                const timeline = document.getElementById('profileTimeline');
+                if (p.approvals && p.approvals.length > 0) {
+                    timeline.innerHTML = p.approvals.map(a => {
+                        let iconClass = 'pending';
+                        let icon = 'fa-hourglass-half';
+                        if (a.status === 'Approved') { iconClass = 'success'; icon = 'fa-check'; }
+                        else if (a.status === 'Rejected') { iconClass = 'rejected'; icon = 'fa-xmark'; }
+
+                        const roleLabel = {
+                            'ClassIncharge': 'Class Incharge',
+                            'HOD': 'HOD', 'PTI': 'PTI', 'ANO': 'ANO (NCC)',
+                            'Librarian': 'Library', 'CanteenOwner': 'Canteen',
+                            'HostelSuperintendent_Boys': 'Hostel Sup. (Boys)',
+                            'HostelSuperintendent_Girls': 'Hostel Sup. (Girls)',
+                        }[a.faculty_role] || a.faculty_role;
+
+                        return `
+                            <div class="timeline-item">
+                                <div class="timeline-icon ${iconClass}"><i class="fa-solid ${icon}"></i></div>
+                                <div class="timeline-content">
+                                    <h4>${roleLabel} — ${a.status}</h4>
+                                    <p>${a.faculty_name}${a.note ? ': ' + a.note : ''}</p>
+                                    <span class="time-stamp">${a.action_date || (a.status === 'Pending' ? 'Action Required' : '')}</span>
+                                </div>
+                            </div>`;
+                    }).join('');
+                } else {
+                    timeline.innerHTML = '<div class="no-data">No clearance requests yet.</div>';
+                }
+
+            } catch (err) {
+                console.error('Profile load error:', err);
+                showToast('Failed to load profile', 'error');
+            }
+        }
+
+        // ── Back Buttons ────────────────────────────────────────
+        document.getElementById('backToSemesters').addEventListener('click', () => {
+            reqListView.style.display = 'none';
+            reqDashView.style.display = 'block';
+        });
+
+        document.getElementById('backToList').addEventListener('click', () => {
+            reqProfileView.style.display = 'none';
+            reqListView.style.display = 'block';
+        });
+
+        // ── Upload Fines ────────────────────────────────────────
+        document.getElementById('uploadBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('fineFile');
+            const resultDiv = document.getElementById('uploadResult');
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showToast('Please select an Excel file', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('uploadBtn');
+            btn.disabled = true;
+            btn.textContent = 'Uploading...';
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const res = await fetch(`${API_BASE}/api/incharge/upload-fines`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData,
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showToast(data.detail || 'Upload failed', 'error');
+                    resultDiv.style.display = 'none';
+                    return;
+                }
+
+                // Show results
+                let html = `<div class="alert alert-info">
+                    <strong>Upload Complete:</strong> ${data.inserted} inserted, ${data.updated} updated.`;
+                if (data.errors && data.errors.length > 0) {
+                    html += `<br><strong>Errors:</strong><ul>${data.errors.map(e => `<li>${e}</li>`).join('')}</ul>`;
+                }
+                html += '</div>';
+                resultDiv.innerHTML = html;
+                resultDiv.style.display = 'block';
+
+                showToast(`Fines uploaded: ${data.inserted} new, ${data.updated} updated`, 'success');
+                fileInput.value = '';
+
+                // Reload overview
+                loadDashboard();
+
+            } catch (err) {
+                console.error('Upload error:', err);
+                showToast('Network error during upload', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Upload Fines';
+            }
+        });
+
+        // ── Reports Download ────────────────────────────────────
+        document.querySelectorAll('[data-report]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const reportType = btn.dataset.report;
+                try {
+                    const res = await fetch(`${API_BASE}/api/incharge/reports?report_type=${reportType}`, {
+                        headers: { 'Authorization': `Bearer ${token}` },
+                    });
+
+                    if (!res.ok) {
+                        showToast('Failed to download report', 'error');
+                        return;
+                    }
+
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${reportType}_report.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+
+                    showToast(`${reportType} report downloaded`, 'success');
+                } catch (err) {
+                    console.error('Report download error:', err);
+                    showToast('Network error', 'error');
+                }
+            });
+        });
+
+        // ── Reset Data ──────────────────────────────────────────
+        document.getElementById('resetCancel').addEventListener('click', () => {
+            showSection('overview');
+            document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+            document.querySelector('.sidebar-nav li:first-child').classList.add('active');
+        });
+
+        document.getElementById('resetConfirm').addEventListener('click', async () => {
+            if (!confirm('Are you ABSOLUTELY sure? This will delete ALL fine, request, and attendance data!')) return;
+
+            const btn = document.getElementById('resetConfirm');
+            btn.disabled = true;
+            btn.textContent = 'Resetting...';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/incharge/reset`, {
+                    method: 'POST',
+                    headers: authHeaders,
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showToast(data.detail || 'Reset failed', 'error');
+                    return;
+                }
+
+                showToast(`Reset complete: ${data.fines_deleted} fines, ${data.requests_deleted} requests deleted`, 'success');
+                loadDashboard();
+
+                // Switch back to overview
+                showSection('overview');
+                document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+                document.querySelector('.sidebar-nav li:first-child').classList.add('active');
+
+            } catch (err) {
+                console.error('Reset error:', err);
+                showToast('Network error', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Confirm System Reset';
+            }
+        });
+
+        // ═══════════════════════════════════════════════════════════
+        // ATTENDANCE AI MODULE
+        // ═══════════════════════════════════════════════════════════
+
+        const SEMESTER_SUBJECTS = {
+            "4": [
+                { name: "PROGRAMMING IN PYTHON", type: "Theory", label: "(011) PROGRAMMING IN PYTHON (T)" },
+                { name: "PROGRAMMING IN PYTHON", type: "Lab", label: "(012) PROGRAMMING IN PYTHON (P)" },
+                { name: "DATABASE MANAGEMENT SYSTEM", type: "Theory", label: "(021) DATABASE MANAGEMENT SYSTEM (T)" },
+                { name: "DATABASE MANAGEMENT SYSTEM", type: "Lab", label: "(022) DATABASE MANAGEMENT SYSTEM (P)" },
+                { name: "INFORMATION SECURITY", type: "Theory", label: "(031) INFORMATION SECURITY (T)" },
+                { name: "DATA STRUCTURES", type: "Theory", label: "(061) DATA STRUCTURES (T)" },
+                { name: "DATA STRUCTURES", type: "Lab", label: "(062) DATA STRUCTURES (P)" },
+                { name: "ESSENCE OF INDIAN KNOWLEDGE & TRADITION", type: "Theory", label: "(091) ESSENCE OF INDIAN KNOWLEDGE & TRADITION (T)" },
+                { name: "MINOR PROJECT", type: "Lab", label: "(102) MINOR PROJECT (P)" }
+            ]
+        };
+
+        function populateSubjects() {
+            const sem = document.getElementById('attSemester').value;
+            const select = document.getElementById('attSubject');
+            select.innerHTML = '';
+            
+            const subs = SEMESTER_SUBJECTS[sem] || [{name: "General Subject", type: "Theory", label: "General Subject (Please configure)"}];
+            subs.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = `${s.name}|${s.type}`;
+                opt.textContent = s.label;
+                select.appendChild(opt);
+            });
+        }
+        
+        document.getElementById('attSemester').addEventListener('change', populateSubjects);
+        populateSubjects();
+
+        // ── Tab Mode Switcher ─────────────────────────────────────────
+        document.getElementById('modeManualBtn').addEventListener('click', () => {
+             document.getElementById('attLoadBtn').style.display = 'flex';
+             document.getElementById('attUploadZone').style.display = 'none';
+             document.getElementById('modeManualBtn').classList.add('btn-primary');
+             document.getElementById('modeManualBtn').classList.remove('btn-outline');
+             document.getElementById('modeAIBtn').classList.remove('btn-primary');
+             document.getElementById('modeAIBtn').classList.add('btn-outline');
+             document.getElementById('modeAIBtn').style.color = '#6366f1';
+             document.getElementById('modeManualBtn').style.color = '';
+        });
+        document.getElementById('modeAIBtn').addEventListener('click', () => {
+             document.getElementById('attLoadBtn').style.display = 'none';
+             document.getElementById('attUploadZone').style.display = 'block';
+             document.getElementById('modeAIBtn').classList.add('btn-primary');
+             document.getElementById('modeAIBtn').classList.remove('btn-outline');
+             document.getElementById('modeManualBtn').classList.remove('btn-primary');
+             document.getElementById('modeManualBtn').classList.add('btn-outline');
+             document.getElementById('modeManualBtn').style.color = '#6366f1';
+             document.getElementById('modeAIBtn').style.color = '';
+        });
+
+        // ── Image Preview & Upload Logic ──────────────────────────────
+        document.getElementById('attImageFile').addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('attPreviewImg').src = e.target.result;
+                    document.getElementById('attImagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('attImagePreview').style.display = 'none';
+            }
+        });
+        
+        async function compressImage(file, maxWidth = 1600) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+                        if (width <= maxWidth) return resolve(file);
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        canvas.toBlob((blob) => {
+                            resolve(new File([blob], file.name, {type: 'image/jpeg'}));
+                        }, 'image/jpeg', 0.8);
+                    };
+                };
+            });
+        }
+        
+        document.getElementById('attUploadBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('attImageFile');
+            const semester = document.getElementById('attSemester').value;
+            const subjectVal = document.getElementById('attSubject').value;
+            const totalClassesStr = document.getElementById('attTotalClasses').value;
+            const [subjectName, groupType] = subjectVal.split('|');
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showToast('Please select a register image', 'warning');
+                return;
+            }
+            if(!totalClassesStr || isNaN(totalClassesStr) || parseInt(totalClassesStr) <= 0) {
+                showToast('Please enter a valid number for Total Classes', 'warning');
+                return;
+            }
+            const totalClasses = parseInt(totalClassesStr);
+            const btn = document.getElementById('attUploadBtn');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing with AI...';
+            btn.disabled = true;
+
+            try {
+                showAiProgress();
+                setAiStep(1, 'Uploading compressed image...');
+                
+                const compressedFile = await compressImage(fileInput.files[0]);
+                const formData = new FormData();
+                formData.append('file', compressedFile);
+
+                setAiStep(2, 'Gemini 2.0 Analysing register...');
+                const url = `${API_BASE}/api/attendance/upload?semester=${semester}&subject_name=${encodeURIComponent(subjectName)}&group_type=${encodeURIComponent(groupType)}&total_classes=${totalClasses}`;
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData,
+                });
+                
+                setAiStep(3, 'Processing extracted data...');
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    hideAiProgress();
+                    showToast(data.detail || 'AI extraction failed', 'error');
+                    return;
+                }
+
+                setAiStep(4, 'Success! Preparing editor...');
+                
+                setTimeout(() => {
+                    hideAiProgress();
+                    showToast(data.message, 'success');
+                    renderAiResults(data, semester, fileInput);
+                }, 800);
+
+            } catch (err) {
+                console.error('AI error:', err);
+                hideAiProgress();
+                showToast('AI Service error', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        });
+
+        function renderAiResults(data, semester, fileInput) {
+            // Show extracted data
+            document.getElementById('attExtractedTitle').textContent = data.subject_name;
+            document.getElementById('attExtractedBadge').textContent = data.group_type;
+            document.getElementById('attExtractedBadge').className =
+                `status-badge ${data.group_type === 'Theory' ? 'status-info' : 'status-badge'}`;
+            if (data.group_type === 'Lab') {
+                document.getElementById('attExtractedBadge').style.background = '#10b981';
+                document.getElementById('attExtractedBadge').style.color = '#fff';
+            } else {
+                document.getElementById('attExtractedBadge').style.background = '';
+                document.getElementById('attExtractedBadge').style.color = '';
+            }
+
+            const tbody = document.getElementById('attExtractedBody');
+            tbody.innerHTML = data.students.map((s, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td><input type="text" class="form-control edit-roll" value="${s.roll_no}" readonly style="width: 120px; padding: 4px 8px; font-size: 0.85rem; background: #f8fafc;"></td>
+                    <td><input type="text" class="form-control edit-name" value="${s.name}" readonly style="width: 140px; padding: 4px 8px; font-size: 0.85rem; background: #f8fafc;"></td>
+                    <td><input type="number" class="form-control edit-total" value="${data.total_classes}" readonly style="width: 70px; padding: 4px 8px; font-size: 0.85rem; background: #f8fafc;"></td>
+                    <td><input type="number" class="form-control edit-attended" value="${s.attended_classes}" min="0" max="${data.total_classes}" style="width: 80px; padding: 4px 8px; font-size: 0.85rem; border: 2px solid #3b82f6;"></td>
+                    <td><span class="edit-absent" style="color: #ef4444; font-weight: 600;">${s.absent_classes}</span></td>
+                </tr>
+            `).join('');
+            
+            // Real-time absent tracking
+            const rows = tbody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const attInput = row.querySelector('.edit-attended');
+                const totalInput = row.querySelector('.edit-total');
+                const absSpan = row.querySelector('.edit-absent');
+                attInput.addEventListener('input', () => {
+                    let att = parseInt(attInput.value);
+                    let tot = parseInt(totalInput.value) || 0;
+                    if(isNaN(att)) { absSpan.textContent = '-'; return; }
+                    if(att > tot) { attInput.value = tot; att = tot; }
+                    if(att < 0) { attInput.value = 0; att = 0; }
+                    absSpan.textContent = tot - att;
+                });
+            });
+
+            const saveBtn = document.getElementById('attSaveCorrectionsBtn');
+            saveBtn.style.display = 'flex';
+            saveBtn.innerHTML = '<i class="fa-solid fa-save"></i> Submit AI Findings';
+            saveBtn.onclick = () => submitManualAttendance(semester, data.subject_name, data.group_type, data.total_classes);
+
+            document.getElementById('attExtractedCard').style.display = 'block';
+            fileInput.value = '';
+            document.getElementById('attImagePreview').style.display = 'none';
+        }
+
+        const aiModal = document.getElementById('aiProgressModal');
+        const aiStepList = document.getElementById('aiStepList');
+
+        function showAiProgress() {
+            aiModal.style.display = 'flex';
+            aiStepList.innerHTML = `
+                <div class="ai-step active" id="step-1"><i class="fa-solid fa-file-arrow-up"></i> Uploading Image...</div>
+                <div class="ai-step" id="step-2"><i class="fa-solid fa-brain"></i> AI Register Analysis...</div>
+                <div class="ai-step" id="step-3"><i class="fa-solid fa-microchip"></i> Extracting Data...</div>
+                <div class="ai-step" id="step-4"><i class="fa-solid fa-check-circle"></i> Ready for Review</div>
+            `;
+        }
+
+        function setAiStep(stepNum, text) {
+            const current = document.getElementById(`step-${stepNum}`);
+            if(!current) return;
+            
+            // Mark previous as done
+            for(let i=1; i<stepNum; i++) {
+                const prev = document.getElementById(`step-${i}`);
+                if(prev) {
+                    prev.className = 'ai-step done';
+                    prev.querySelector('i').className = 'fa-solid fa-check-circle';
+                }
+            }
+            // Mark current active
+            current.className = 'ai-step active';
+            if(stepNum < 4) {
+               current.querySelector('i').className = 'fa-solid fa-spinner fa-spin';
+            }
+        }
+
+        function hideAiProgress() {
+            aiModal.style.display = 'none';
+        }
+        // Load Students (Manual Entry)
+        document.getElementById('attLoadBtn').addEventListener('click', async () => {
+            const semester = document.getElementById('attSemester').value;
+            const subjectVal = document.getElementById('attSubject').value;
+            const totalClassesStr = document.getElementById('attTotalClasses').value;
+            const [subjectName, groupType] = subjectVal.split('|');
+
+            if(!totalClassesStr || isNaN(totalClassesStr) || parseInt(totalClassesStr) <= 0) {
+                showToast('Please enter a valid number for Total Classes', 'warning');
+                return;
+            }
+            
+            const totalClasses = parseInt(totalClassesStr);
+
+            const btn = document.getElementById('attLoadBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
+
+            try {
+                // Fetch students for this semester assigned to the incharge
+                const res = await fetch(`${API_BASE}/api/incharge/students?semester=${semester}`, {
+                    headers: authHeaders,
+                });
+
+                if (!res.ok) {
+                    showToast('Failed to load students', 'error');
+                    return;
+                }
+
+                const students = await res.json();
+                
+                if (students.length === 0) {
+                    showToast('No students found for this semester.', 'warning');
+                    return;
+                }
+
+                // Show extracted data table format for manual entry
+                document.getElementById('attExtractedTitle').textContent = subjectName;
+                document.getElementById('attExtractedBadge').textContent = groupType;
+                document.getElementById('attExtractedBadge').className =
+                    `status-badge ${groupType === 'Theory' ? 'status-info' : 'status-badge'}`;
+                if (groupType === 'Lab') {
+                    document.getElementById('attExtractedBadge').style.background = '#10b981';
+                    document.getElementById('attExtractedBadge').style.color = '#fff';
+                } else {
+                    document.getElementById('attExtractedBadge').style.background = '';
+                    document.getElementById('attExtractedBadge').style.color = '';
+                }
+
+                const tbody = document.getElementById('attExtractedBody');
+                // Use input boxes for manual entry
+                tbody.innerHTML = students.map((s, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><input type="text" class="form-control edit-roll" value="${s.roll_no}" readonly style="width: 120px; padding: 4px 8px; font-size: 0.85rem; background: #f8fafc;"></td>
+                        <td><input type="text" class="form-control edit-name" value="${s.name}" readonly style="width: 140px; padding: 4px 8px; font-size: 0.85rem; background: #f8fafc;"></td>
+                        <td><input type="number" class="form-control edit-total" value="${totalClasses}" readonly style="width: 70px; padding: 4px 8px; font-size: 0.85rem; background: #f8fafc;"></td>
+                        <td><input type="number" class="form-control edit-attended" placeholder="e.g. 15" min="0" max="${totalClasses}" style="width: 80px; padding: 4px 8px; font-size: 0.85rem; border: 2px solid #3b82f6;"></td>
+                        <td><span class="edit-absent" style="color: #ef4444; font-weight: 600;">-</span></td>
+                    </tr>
+                `).join('');
+                
+                // Add real-time absent calculation
+                const rows = tbody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const attInput = row.querySelector('.edit-attended');
+                    const totalInput = row.querySelector('.edit-total');
+                    const absSpan = row.querySelector('.edit-absent');
+                    attInput.addEventListener('input', () => {
+                        let att = parseInt(attInput.value);
+                        let tot = parseInt(totalInput.value) || 0;
+                        if(isNaN(att)) {
+                            absSpan.textContent = '-';
+                            return;
+                        }
+                        if(att > tot) { attInput.value = tot; att = tot; }
+                        if(att < 0) { attInput.value = 0; att = 0; }
+                        absSpan.textContent = tot - att;
+                    });
+                });
+
+                const saveBtn = document.getElementById('attSaveCorrectionsBtn');
+                saveBtn.style.display = 'flex';
+                saveBtn.innerHTML = '<i class="fa-solid fa-save"></i> Submit Attendance';
+                
+                // Override save button to post new subject attendance instead of put
+                saveBtn.onclick = () => submitManualAttendance(semester, subjectName, groupType, totalClasses);
+
+                document.getElementById('attExtractedCard').style.display = 'block';
+
+            } catch (err) {
+                console.error('Load students error:', err);
+                showToast('Network error', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-users-viewfinder"></i> Load Students';
+            }
+        });
+        
+        // Submit Manual Attendance
+        async function submitManualAttendance(semester, subjectName, groupType, totalClasses) {
+            const tbody = document.getElementById('attExtractedBody');
+            const rows = tbody.querySelectorAll('tr');
+            const students = [];
+            
+            let missingData = false;
+            
+            rows.forEach(row => {
+                const attendedVal = row.querySelector('.edit-attended').value;
+                if(attendedVal === '') {
+                    missingData = true;
+                    row.querySelector('.edit-attended').style.borderColor = '#ef4444';
+                } else {
+                    row.querySelector('.edit-attended').style.borderColor = '#3b82f6';
+                }
+            
+                students.push({
+                    roll_no: row.querySelector('.edit-roll').value,
+                    student_name: row.querySelector('.edit-name').value,
+                    attended_classes: parseInt(attendedVal || 0)
+                });
+            });
+            
+            if(missingData) {
+                showToast('Please enter attended classes for all students', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('attSaveCorrectionsBtn');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/attendance/submit-manual`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...authHeaders },
+                    body: JSON.stringify({
+                        semester: parseInt(semester),
+                        subject_name: subjectName,
+                        group_type: groupType,
+                        total_classes: totalClasses,
+                        students: students
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if(!res.ok) {
+                    showToast(data.detail || 'Failed to submit attendance', 'error');
+                    return;
+                }
+                
+                showToast('Attendance submitted successfully!', 'success');
+                document.getElementById('attExtractedCard').style.display = 'none';
+                document.getElementById('attTotalClasses').value = '';
+                
+                await loadAttendanceSubjects();
+                await loadAttendanceSummary();
+            } catch(err) {
+                console.error("Submit error", err);
+                showToast('Network error', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
+
+        let uploadedSubjectsCount = 0;
+
+        // Load uploaded subjects
+        async function loadAttendanceSubjects() {
+            const semester = document.getElementById('attSemester').value;
+            try {
+                const res = await fetch(`${API_BASE}/api/attendance/subjects/${semester}`, {
+                    headers: authHeaders,
+                });
+                if (!res.ok) return;
+
+                const subjects = await res.json();
+                uploadedSubjectsCount = subjects.length;
+                const container = document.getElementById('attSubjectsList');
+
+                if (subjects.length === 0) {
+                    container.innerHTML = '<div class="no-data" style="padding: 30px; text-align: center; color: #94a3b8;">No subjects uploaded yet. Upload a register image above.</div>';
+                    return;
+                }
+
+                container.innerHTML = subjects.map(s => {
+                    const typeColor = s.group_type === 'Theory' ? '#1e3a8a' : '#10b981';
+                    const typeBg = s.group_type === 'Theory' ? '#eff6ff' : '#f0fdf4';
+                    return `
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; margin-bottom: 10px; border-radius: 10px; background: ${typeBg}; border: 1px solid ${typeColor}20;">
+                            <div style="display: flex; align-items: center; gap: 14px;">
+                                <div style="width: 40px; height: 40px; border-radius: 10px; background: ${typeColor}; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                                    <i class="fa-solid ${s.group_type === 'Theory' ? 'fa-book' : 'fa-flask'}"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: #1e293b;">${s.subject_name}</div>
+                                    <div style="font-size: 0.8rem; color: #64748b;">${s.group_type} • ${s.student_count} students • ${s.total_classes} classes</div>
+                                </div>
+                            </div>
+                            <div>
+                                <button class="btn btn-outline btn-sm" style="color: #6366f1; border-color: #c7d2fe; font-size: 0.75rem; margin-right: 8px;"
+                                    onclick="editAttSubject('${s.subject_name}', '${s.group_type}')">
+                                    <i class="fa-solid fa-pen"></i> Edit
+                                </button>
+                                <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #fecaca; font-size: 0.75rem;"
+                                    onclick="deleteAttSubject('${s.subject_name}', '${s.group_type}')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error('Load subjects error:', err);
+            }
+        }
+
+        // Edit Subject
+        async function editAttSubject(subjectName, groupType) {
+            const semester = document.getElementById('attSemester').value;
+            try {
+                const res = await fetch(`${API_BASE}/api/attendance/subject-detail?semester=${semester}&subject_name=${encodeURIComponent(subjectName)}&group_type=${groupType}`, {
+                    headers: authHeaders
+                });
+                if (!res.ok) {
+                    showToast('Failed to fetch subject details', 'error');
+                    return;
+                }
+                const records = await res.json();
+                
+                document.getElementById('attExtractedTitle').textContent = `Editing: ${subjectName}`;
+                document.getElementById('attExtractedBadge').textContent = groupType;
+                
+                const tbody = document.getElementById('attExtractedBody');
+                tbody.innerHTML = records.map((s, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><input type="text" class="form-control edit-roll" value="${s.roll_no}" data-id="${s.id}" style="width: 120px; padding: 4px 8px; font-size: 0.85rem;"></td>
+                        <td><input type="text" class="form-control edit-name" value="${s.student_name}" style="width: 140px; padding: 4px 8px; font-size: 0.85rem;"></td>
+                        <td><input type="number" class="form-control edit-total" value="${s.total_classes}" style="width: 70px; padding: 4px 8px; font-size: 0.85rem;"></td>
+                        <td><input type="number" class="form-control edit-attended" value="${s.attended_classes}" style="width: 70px; padding: 4px 8px; font-size: 0.85rem;"></td>
+                        <td><span class="edit-absent" style="color: #ef4444; font-weight: 600;">${s.total_classes - s.attended_classes}</span></td>
+                    </tr>
+                `).join('');
+                
+                const btn = document.getElementById('attSaveCorrectionsBtn');
+                btn.style.display = 'flex';
+                btn.onclick = () => saveCorrections();
+                
+                document.getElementById('attExtractedCard').style.display = 'block';
+                
+            } catch(err) {
+                console.error("Edit error", err);
+            }
+        }
+
+        // Save Corrections
+        async function saveCorrections() {
+            const tbody = document.getElementById('attExtractedBody');
+            const rows = tbody.querySelectorAll('tr');
+            const students = [];
+            
+            rows.forEach(row => {
+                students.push({
+                    id: parseInt(row.querySelector('.edit-roll').getAttribute('data-id')),
+                    roll_no: row.querySelector('.edit-roll').value,
+                    student_name: row.querySelector('.edit-name').value,
+                    total_classes: parseInt(row.querySelector('.edit-total').value),
+                    attended_classes: parseInt(row.querySelector('.edit-attended').value)
+                });
+            });
+
+            try {
+                const res = await fetch(`${API_BASE}/api/attendance/subject`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', ...authHeaders },
+                    body: JSON.stringify({ students })
+                });
+                
+                if(!res.ok) {
+                    showToast('Failed to save corrections', 'error');
+                    return;
+                }
+                showToast('Corrections saved successfully!', 'success');
+                document.getElementById('attExtractedCard').style.display = 'none';
+                
+                await loadAttendanceSubjects();
+                await loadAttendanceSummary();
+                loadDashboard(); // Sync overview stats (fines might change)
+            } catch(err) {
+                console.error("Save error", err);
+            }
+        }
+
+        // Delete subject
+        async function deleteAttSubject(subjectName, groupType) {
+            if (!confirm(`Delete all attendance data for "${subjectName}" (${groupType})?`)) return;
+
+            const semester = document.getElementById('attSemester').value;
+            try {
+                const res = await fetch(
+                    `${API_BASE}/api/attendance/subject?semester=${semester}&subject_name=${encodeURIComponent(subjectName)}&group_type=${groupType}`,
+                    {
+                        method: 'DELETE',
+                        headers: authHeaders,
+                    }
+                );
+
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast(data.detail || 'Delete failed', 'error');
+                    return;
+                }
+
+                showToast(data.message, 'success');
+                await loadAttendanceSubjects();
+                await loadAttendanceSummary();
+                loadDashboard(); // Sync overview stats
+            } catch (err) {
+                console.error('Delete subject error:', err);
+                showToast('Network error', 'error');
+            }
+        }
+
+        // Load aggregated summary
+        async function loadAttendanceSummary() {
+            const semester = document.getElementById('attSemester').value;
+            try {
+                const res = await fetch(`${API_BASE}/api/attendance/summary/${semester}`, {
+                    headers: authHeaders,
+                });
+                if (!res.ok) return;
+
+                const summary = await res.json();
+                const card = document.getElementById('attSummaryCard');
+                const tbody = document.getElementById('attSummaryBody');
+                const statsDiv = document.getElementById('attSummaryStats');
+
+                if (summary.length === 0) {
+                    card.style.display = 'none';
+                    return;
+                }
+
+                card.style.display = 'block';
+
+                // Enforce Subject Check
+                const requiredSubjCount = (SEMESTER_SUBJECTS[semester] || []).length;
+                const isComplete = (uploadedSubjectsCount >= requiredSubjCount && requiredSubjCount > 0);
+                
+                document.getElementById('attIncompleteWarning').style.display = isComplete ? 'none' : 'block';
+                document.getElementById('attFinalizeBtn').style.display = isComplete ? 'flex' : 'none';
+                
+                const calcCols = document.querySelectorAll('.att-calc-col');
+                calcCols.forEach(c => c.style.display = isComplete ? 'table-cell' : 'none');
+
+                let totalFine = 0;
+                tbody.innerHTML = summary.map(s => {
+                    totalFine += s.fine;
+                    const theoryPctColor = s.theory_percentage >= 75 ? '#059669' : s.theory_percentage >= 50 ? '#f59e0b' : '#ef4444';
+                    const labPctColor = s.lab_percentage >= 75 ? '#059669' : s.lab_percentage >= 50 ? '#f59e0b' : '#ef4444';
+                    
+                    const fineHtml = isComplete ? `<td style="font-weight: 700; color: ${s.fine > 0 ? '#ef4444' : '#059669'};">₹ ${s.fine}</td>` : '';
+                    const pctHtml = isComplete ? `
+                        <td><span style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; background: ${theoryPctColor}15; color: ${theoryPctColor};">${s.theory_percentage}%</span></td>
+                        <td><span style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; background: ${labPctColor}15; color: ${labPctColor};">${s.lab_percentage}%</span></td>
+                    ` : '';
+                    
+                    return `
+                        <tr>
+                            <td><code>${s.roll_no}</code></td>
+                            <td>${s.name}</td>
+                            <td>${s.total_theory}</td>
+                            <td style="color: #059669;">${s.attended_theory}</td>
+                            <td>${s.total_lab}</td>
+                            <td style="color: #059669;">${s.attended_lab}</td>
+                            <td style="color: #ef4444; font-weight: 600;">${s.absent_theory + s.absent_lab}</td>
+                            ${fineHtml}
+                            ${pctHtml}
+                        </tr>
+                    `;
+                }).join('');
+
+                statsDiv.innerHTML = `<strong>${summary.length}</strong> students | Uploaded: <strong>${uploadedSubjectsCount}/${requiredSubjCount}</strong> subjects`;
+
+            } catch (err) {
+                console.error('Load summary error:', err);
+            }
+        }
+
+        // Finalize attendance
+        document.getElementById('attFinalizeBtn').addEventListener('click', async () => {
+            const semester = document.getElementById('attSemester').value;
+            if (!confirm(`Finalize attendance for Semester ${semester}? This will calculate fines and update student records.`)) return;
+
+            const btn = document.getElementById('attFinalizeBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Finalizing...';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/attendance/finalize/${semester}`, {
+                    method: 'POST',
+                    headers: authHeaders,
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showToast(data.detail || 'Finalization failed', 'error');
+                    return;
+                }
+
+                showToast(
+                    `✅ Attendance finalized! ${data.students_updated} students updated, ${data.fines_created + data.fines_updated} fines processed. Total: ₹${data.total_fine_amount}`,
+                    'success'
+                );
+
+                // Reload overview data
+                loadDashboard();
+
+            } catch (err) {
+                console.error('Finalize error:', err);
+                showToast('Network error during finalization', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Finalize & Calculate Fines';
+            }
+        });
+
+        // Refresh subjects button
+        document.getElementById('attRefreshSubjects').addEventListener('click', async () => {
+            await loadAttendanceSubjects();
+            await loadAttendanceSummary();
+            showToast('Refreshed', 'success');
+        });
+
+        // Refresh subjects when semester changes
+        document.getElementById('attSemester').addEventListener('change', async () => {
+            document.getElementById('attExtractedCard').style.display = 'none';
+            await loadAttendanceSubjects();
+            await loadAttendanceSummary();
+        });
+
+        // ── Logout Handlers ─────────────────────────────────────
+        function doLogout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_role');
+            localStorage.removeItem('token_role');
+            localStorage.removeItem('token_sub');
+            window.location.href = '/';
+        }
+
+        document.getElementById('sidebarLogout').addEventListener('click', (e) => { e.preventDefault(); doLogout(); });
+        document.getElementById('headerLogout').addEventListener('click', doLogout);
+
+        // ── Boot ────────────────────────────────────────────────
+        loadDashboard();
+    </script>
+    <div id="aiProgressModal" class="ai-modal-overlay">
+        <div class="ai-modal-card">
+            <div class="ai-pulse"><i class="fa-solid fa-brain"></i></div>
+            <h2>Processing Attendance AI</h2>
+            <p style="color:#64748b; font-size:0.9rem;">Analysing register image with Gemini 2.0 Flash</p>
+            <div class="ai-steps" id="aiStepList">
+                <!-- Filled by JS -->
+            </div>
+            <p style="font-size:0.8rem; color:#94a3b8;">Please don't close this tab...</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</body>
+</html>

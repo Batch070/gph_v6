@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Librarian Dashboard | GPH Automated Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/font-awesome.css">
+    <link rel="stylesheet" href="/static/ano-dashboard.css">
+</head>
+
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                <div class="logo-text"><h2>GPH</h2><p>Librarian Portal</p></div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active"><a href="#" data-section="overview"><i class="fa-solid fa-chart-pie"></i><span>Overview</span></a></li>
+                    <li><a href="#" data-section="requests"><i class="fa-solid fa-code-pull-request"></i><span>Accept Request</span></a></li>
+                    <li><a href="#" data-section="settings"><i class="fa-solid fa-gear"></i><span>Settings</span></a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="logout-link" id="sidebarLogout"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+            <div class="bg-overlay"></div>
+            <header class="top-header">
+                <div class="welcome-text animated-fade">
+                    <h1>Welcome, <span id="headerName">Librarian</span> <span class="wave-emoji">👋</span></h1>
+                    <p id="headerSubtitle">Central Library Administration</p>
+                </div>
+                <div class="header-illustration">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z" fill="#1e3a8a" fill-opacity="0.1" />
+                        <path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z" stroke="#1e3a8a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" title="Notifications"><i class="fa-regular fa-bell"></i></button>
+                    <button class="logout-btn-small" title="Logout" id="headerLogout"><i class="fa-solid fa-power-off"></i></button>
+                </div>
+            </header>
+
+            <div id="loadingState" class="loading-overlay"><div class="spinner"></div><p class="loading-text">Loading...</p></div>
+
+            <main class="content-area" id="mainContent" style="display:none;">
+                <!-- OVERVIEW -->
+                <div id="sec-overview" class="dashboard-section">
+                    <section class="card snapshot-card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-chart-pie"></i> Dashboard Overview</h3>
+                            <span class="status-badge status-info">Library Admin System</span>
+                        </div>
+                        <div class="snapshot-grid">
+                            <div class="info-item"><label>Total Students</label><div class="info-value" id="statStudents">0</div></div>
+                            <div class="info-item"><label>Pending Requests</label><div class="info-value"><span class="badge badge-pending badge-pulse" id="statPending">0</span></div></div>
+                            <div class="info-item"><label>Approved</label><div class="info-value text-green" id="statApproved">0</div></div>
+                            <div class="info-item"><label>Rejected</label><div class="info-value text-red" id="statRejected">0</div></div>
+                        </div>
+                    </section>
+                    <section class="card animated-card">
+                        <div class="card-header"><h3><i class="fa-solid fa-database"></i> Student Insights</h3></div>
+                        <div class="student-insights-grid">
+                            <div class="insight-stat-card">
+                                <div class="progress-circle">
+                                    <svg viewBox="0 0 36 36">
+                                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" id="insightApprovalCircle" stroke="#1e3a8a" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    </svg>
+                                    <div class="percentage" id="insightApprovalPct">0%</div>
+                                </div>
+                                <p>Return Compliance</p>
+                            </div>
+                            <div class="insight-count-card"><div class="count-icon ncc"><i class="fa-solid fa-book"></i></div><div class="count-value" id="insightTotal">0</div><div class="count-label">Total Readers</div></div>
+                            <div class="insight-count-card"><div class="count-icon"><i class="fa-solid fa-building"></i></div><div class="count-value" id="insightBranches">0</div><div class="count-label">Branches</div></div>
+                            <div class="insight-count-card"><div class="count-icon paid"><i class="fa-solid fa-circle-check"></i></div><div class="count-value" id="insightCleared">0</div><div class="count-label">Cleared</div></div>
+                            <div class="insight-count-card"><div class="count-icon unpaid"><i class="fa-solid fa-circle-xmark"></i></div><div class="count-value" id="insightPendingCount">0</div><div class="count-label">Pending</div></div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- REQUESTS: Branch → Semester → Student List → Profile -->
+                <div id="sec-requests" class="dashboard-section" style="display:none;">
+
+                    <!-- 1: Branch Cards -->
+                    <div id="branchSelectionView">
+                        <h2 class="section-title-transparent"><i class="fa-solid fa-code-pull-request"></i> Library Requests Dashboard</h2>
+                        <section class="card animated-card snapshot-card mb-2">
+                            <div class="card-header"><h3><i class="fa-solid fa-chart-line"></i> Request Summary</h3></div>
+                            <div class="snapshot-grid" style="grid-template-columns: repeat(3, 1fr);">
+                                <div class="info-item"><label>Pending</label><div class="info-value"><span class="badge badge-pending badge-pulse" id="reqInsightPending">0</span></div></div>
+                                <div class="info-item"><label>Approved</label><div class="info-value"><span class="badge badge-approved" id="reqInsightApproved">0</span></div></div>
+                                <div class="info-item"><label>Rejected</label><div class="info-value"><span class="badge badge-rejected" id="reqInsightRejected">0</span></div></div>
+                            </div>
+                        </section>
+                        <div class="semester-cards-grid" id="branchCardsContainer"></div>
+                    </div>
+
+                    <!-- 2: Semester Cards for selected Branch -->
+                    <div id="semesterSelectionView" style="display:none;">
+                        <div class="header-with-back mb-2">
+                            <button class="btn btn-outline btn-sm back-btn" onclick="goBackToBranches()"><i class="fa-solid fa-arrow-left"></i> Back to Branches</button>
+                            <h2 style="margin:0;" id="selectedBranchTitle">Branch — Semesters</h2>
+                        </div>
+                        <div class="semester-cards-grid" id="semesterCardsContainer"></div>
+                    </div>
+
+                    <!-- 3: Student List -->
+                    <div id="studentListView" style="display:none;">
+                        <div class="header-with-back mb-2">
+                            <button class="btn btn-outline btn-sm back-btn" onclick="goBackToSemesters()"><i class="fa-solid fa-arrow-left"></i> Back to Semesters</button>
+                            <h2 style="margin:0;" id="selectedSemesterTitle">Semester Requests</h2>
+                        </div>
+                        <section class="card animated-card">
+                            <div class="table-responsive">
+                                <table class="approval-table">
+                                    <thead><tr><th>Student</th><th>Roll No</th><th>Branch / Sem</th><th>Status</th><th>Note</th><th style="width:200px;text-align:center;">Actions</th></tr></thead>
+                                    <tbody id="studentTableBody"></tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- 4: Student Profile -->
+                    <div id="profileView" style="display:none;">
+                        <div class="header-with-back mb-2">
+                            <button class="btn btn-outline btn-sm back-btn" onclick="goBackToStudentList()"><i class="fa-solid fa-arrow-left"></i> Back to Students</button>
+                        </div>
+                        <div class="profile-header card animated-card mb-2">
+                            <div class="avatar-lg" id="profileAvatar">?</div>
+                            <div><h2 id="profileName" style="margin:0;color:var(--primary-color);">---</h2><p class="text-light" style="margin:5px 0 0 0;" id="profileSubtitle">---</p></div>
+                        </div>
+                        <div class="dashboard-grid profile-grid">
+                            <section class="card animated-card"><div class="card-header"><h3><i class="fa-solid fa-book"></i> Library Standing</h3></div><div class="profile-details-grid" id="profileDetailsGrid"></div></section>
+                            <section class="card animated-card"><div class="card-header"><h3><i class="fa-solid fa-timeline"></i> Request Info</h3></div><div class="timeline-container" id="profileTimeline"></div></section>
+                        </div>
+                        <div class="action-bar card mt-2" style="flex-direction:row;align-items:center;justify-content:center;gap:20px;">
+                            <button class="btn btn-success" id="btnApprove" onclick="updateCurrentRequest('Approved')"><i class="fa-solid fa-check"></i> Accept</button>
+                            <button class="btn btn-danger" id="btnReject" onclick="updateCurrentRequest('Rejected')"><i class="fa-solid fa-xmark"></i> Decline</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SETTINGS -->
+                <div id="sec-settings" class="dashboard-section" style="display:none;">
+                    <h2 class="section-title-transparent"><i class="fa-solid fa-gear"></i> Settings</h2>
+                    <section class="card animated-card">
+                        <div class="card-header"><h3><i class="fa-solid fa-user-pen"></i> Admin Preferences</h3></div>
+                        <div class="form-container">
+                            <div class="form-group"><label>Admin Name</label><input type="text" class="form-control" id="settingsName" value=""></div>
+                            <div class="form-group"><label>Department</label><input type="text" class="form-control" value="GPH Central Library" disabled></div>
+                            <div class="alert alert-info"><strong><i class="fa-solid fa-circle-info"></i> Info:</strong> Contact the System Administrator to modify core settings.</div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '';
+        const TOKEN = localStorage.getItem('access_token');
+        if (!TOKEN) window.location.href = '/';
+        let dashboardData = { faculty_name: '', faculty_role: '', students: [] };
+        let currentBranch = null, currentSemester = null, currentStudentRoll = null;
+
+        function authHeaders() { return { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' }; }
+        function showToast(msg, type = 'success') { const e = document.querySelector('.toast'); if (e) e.remove(); const t = document.createElement('div'); t.className = `toast toast-${type}`; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3500); }
+        function semesterLabel(n) { const s = { 1:'st',2:'nd',3:'rd' }; return `${n}${s[n]||'th'} Semester`; }
+
+        const sections = { overview: document.getElementById('sec-overview'), requests: document.getElementById('sec-requests'), settings: document.getElementById('sec-settings') };
+        const reqViews = { branches: document.getElementById('branchSelectionView'), semesters: document.getElementById('semesterSelectionView'), studentList: document.getElementById('studentListView'), profile: document.getElementById('profileView') };
+
+        function showSection(n) { Object.keys(sections).forEach(k => sections[k].style.display = k===n?'block':'none'); if(n==='requests') switchReqView('branches'); }
+        document.querySelectorAll('.sidebar-nav a[data-section]').forEach(l => { l.addEventListener('click', e => { e.preventDefault(); document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active')); l.parentElement.classList.add('active'); showSection(l.dataset.section); }); });
+        function switchReqView(v) { Object.keys(reqViews).forEach(k => reqViews[k].style.display = k===v?'block':'none'); }
+
+        async function fetchDashboard() {
+            try {
+                const res = await fetch(`${API_BASE}/api/faculty/dashboard`, { headers: authHeaders() });
+                if (res.status === 401) { localStorage.clear(); window.location.href = '/'; return; }
+                if (!res.ok) throw new Error('Failed');
+                dashboardData = await res.json();
+                document.getElementById('headerName').textContent = dashboardData.faculty_name;
+                document.getElementById('settingsName').value = dashboardData.faculty_name;
+                renderAll();
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'flex';
+            } catch (err) { console.error(err); showToast('Error loading dashboard.', 'error'); }
+        }
+
+        function renderAll() { updateStats(); renderBranchCards(); }
+
+        // ── Branch Cards ────────────────────────────────────────
+        function renderBranchCards() {
+            const branches = [...new Set(dashboardData.students.map(s => s.branch))].sort();
+            const c = document.getElementById('branchCardsContainer');
+            if (!branches.length) { c.innerHTML = '<p class="no-data" style="grid-column:span 4;">No students found.</p>'; return; }
+            c.innerHTML = branches.map(branch => {
+                const branchStudents = dashboardData.students.filter(s => s.branch === branch);
+                const pending = branchStudents.filter(s => s.request_status === 'Pending').length;
+                const total = branchStudents.length;
+                return `<div class="semester-card animated-card" onclick="selectBranch('${branch}')">
+                    <div class="sem-icon"><i class="fa-solid fa-building-columns"></i></div>
+                    <h3>${branch}</h3>
+                    <p>${total} Students · ${pending} Pending</p>
+                    <div class="card-action-hint">View Semesters <i class="fa-solid fa-arrow-right"></i></div>
+                </div>`;
+            }).join('');
+        }
+
+        function selectBranch(branch) {
+            currentBranch = branch;
+            document.getElementById('selectedBranchTitle').textContent = `${branch} — Semesters`;
+            renderSemesterCards();
+            switchReqView('semesters');
+        }
+
+        function goBackToBranches() { switchReqView('branches'); }
+
+        // ── Semester Cards (filtered by branch) ─────────────────
+        function renderSemesterCards() {
+            const branchStudents = dashboardData.students.filter(s => s.branch === currentBranch);
+            const semesters = [...new Set(branchStudents.map(s => s.semester))].sort((a,b) => a-b);
+            const c = document.getElementById('semesterCardsContainer');
+            if (!semesters.length) { c.innerHTML = '<p class="no-data" style="grid-column:span 4;">No students found.</p>'; return; }
+            c.innerHTML = semesters.map(sem => {
+                const pending = branchStudents.filter(s => s.semester === sem && s.request_status === 'Pending').length;
+                return `<div class="semester-card animated-card" onclick="selectSemester(${sem})"><div class="sem-icon"><i class="fa-solid fa-building-columns"></i></div><h3>${semesterLabel(sem)}</h3><p>${pending} Pending Requests</p><div class="card-action-hint">Manage Students <i class="fa-solid fa-arrow-right"></i></div></div>`;
+            }).join('');
+        }
+
+        function selectSemester(sem) { currentSemester = sem; document.getElementById('selectedSemesterTitle').textContent = `${currentBranch} — ${semesterLabel(sem)} — Requests`; renderStudentList(); switchReqView('studentList'); }
+        function goBackToSemesters() { switchReqView('semesters'); }
+
+        function renderStudentList() {
+            const tbody = document.getElementById('studentTableBody');
+            const filtered = dashboardData.students.filter(s => s.branch === currentBranch && s.semester === currentSemester);
+            if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="6" class="no-data">No students found.</td></tr>'; return; }
+            tbody.innerHTML = filtered.map(s => {
+                const initial = s.name.charAt(0);
+                let badge = '', actions = '';
+                if (s.request_status === 'Pending') { badge = '<span class="badge badge-pending badge-pulse">Pending</span>'; actions = `<div class="action-btn-group"><button class="btn btn-success btn-sm" onclick="fastUpdate(${s.request_id},'Approved','${s.name}')"><i class="fa-solid fa-check"></i></button><button class="btn btn-danger btn-sm" onclick="fastUpdate(${s.request_id},'Rejected','${s.name}')"><i class="fa-solid fa-xmark"></i></button></div>`; }
+                else if (s.request_status === 'Approved') { badge = '<span class="badge badge-approved">Approved</span>'; actions = '<span class="text-light"><i class="fa-solid fa-lock"></i> Locked</span>'; }
+                else if (s.request_status === 'Rejected') { badge = '<span class="badge badge-rejected">Rejected</span>'; actions = '<span class="text-light"><i class="fa-solid fa-lock"></i> Locked</span>'; }
+                else { badge = '<span class="badge" style="background:#f1f5f9;color:#64748b;">No Request</span>'; actions = '—'; }
+                const noteVal = s.request_note || '', noteDis = s.request_status !== 'Pending' ? 'disabled' : '';
+                return `<tr><td class="clickable-cell"><span class="student-link" onclick="showStudentProfile('${s.roll_no}')"><div class="avatar-sm">${initial}</div> ${s.name}</span></td><td>${s.roll_no}</td><td>${s.branch} / Sem ${s.semester}</td><td>${badge}</td><td><input type="text" class="form-control form-control-sm grid-note-input" id="note-${s.request_id}" placeholder="Add note..." value="${noteVal}" ${noteDis}></td><td>${actions}</td></tr>`;
+            }).join('');
+        }
+
+        async function fastUpdate(rid, status, name) {
+            const ni = document.getElementById(`note-${rid}`); const note = ni ? ni.value.trim() : '';
+            try { const res = await fetch(`${API_BASE}/api/faculty/update-request/${rid}`, { method:'POST', headers:authHeaders(), body:JSON.stringify({ status, note: note||null }) }); if(!res.ok){ const e = await res.json(); throw new Error(e.detail||'Failed'); } showToast(`Request ${status.toLowerCase()} for ${name}`, status==='Approved'?'success':'error'); await fetchDashboard(); renderStudentList(); } catch(e){ showToast(e.message,'error'); }
+        }
+
+        function showStudentProfile(roll) {
+            currentStudentRoll = roll; const s = dashboardData.students.find(x => x.roll_no === roll); if(!s) return;
+            document.getElementById('profileAvatar').textContent = s.name.charAt(0);
+            document.getElementById('profileName').textContent = s.name;
+            document.getElementById('profileSubtitle').innerHTML = `<i class="fa-solid fa-id-card"></i> ${s.roll_no} | ${s.branch} — ${semesterLabel(s.semester)}`;
+            document.getElementById('profileDetailsGrid').innerHTML = `<div class="detail-row"><span class="label">Branch:</span><span class="value">${s.branch}</span></div><div class="detail-row"><span class="label">Theory Attendance:</span><span class="value">${s.theory_attendance}%</span></div><div class="detail-row"><span class="label">Practical Attendance:</span><span class="value">${s.practical_attendance}%</span></div><div class="detail-row"><span class="label">Student Status:</span><span class="value ${s.student_status==='Approved'?'text-green':'text-red'}">${s.student_status}</span></div>`;
+            const tl = document.getElementById('profileTimeline');
+            if(s.request_id){ const ic=s.request_status==='Approved'?'success':(s.request_status==='Rejected'?'rejected':'pending'); const icon=s.request_status==='Approved'?'fa-check':(s.request_status==='Rejected'?'fa-xmark':'fa-hourglass-half'); tl.innerHTML=`<div class="timeline-item"><div class="timeline-icon ${ic}"><i class="fa-solid ${icon}"></i></div><div class="timeline-content"><h4>Library Clearance — ${s.request_status}</h4>${s.request_note?`<p style="margin-top:4px;padding:6px 10px;background:#f8fafc;border-left:3px solid var(--primary-color);border-radius:4px;font-size:0.85rem;"><strong>Note:</strong> ${s.request_note}</p>`:'<p>No notes added.</p>'}</div></div>`; }
+            else { tl.innerHTML = '<div class="no-data">No request history.</div>'; }
+            const bA=document.getElementById('btnApprove'),bR=document.getElementById('btnReject');
+            if(s.request_id&&s.request_status==='Pending'){bA.style.display='';bR.style.display='';}else{bA.style.display='none';bR.style.display='none';}
+            switchReqView('profile');
+        }
+        function goBackToStudentList() { switchReqView('studentList'); }
+        async function updateCurrentRequest(status) { const s=dashboardData.students.find(x=>x.roll_no===currentStudentRoll); if(!s||!s.request_id)return; await fastUpdate(s.request_id,status,s.name); goBackToStudentList(); }
+
+        function updateStats() {
+            const all=dashboardData.students, wr=all.filter(s=>s.request_id);
+            const p=wr.filter(s=>s.request_status==='Pending').length, a=wr.filter(s=>s.request_status==='Approved').length, r=wr.filter(s=>s.request_status==='Rejected').length;
+            const ar=wr.length?Math.round((a/wr.length)*100):0;
+            const branches = new Set(all.map(s => s.branch)).size;
+            document.getElementById('statStudents').textContent=all.length; document.getElementById('statPending').textContent=p; document.getElementById('statApproved').textContent=a; document.getElementById('statRejected').textContent=r;
+            document.getElementById('reqInsightPending').textContent=p; document.getElementById('reqInsightApproved').textContent=a; document.getElementById('reqInsightRejected').textContent=r;
+            document.getElementById('insightTotal').textContent=all.length; document.getElementById('insightBranches').textContent=branches; document.getElementById('insightCleared').textContent=a; document.getElementById('insightPendingCount').textContent=p;
+            document.getElementById('insightApprovalPct').textContent=ar+'%'; document.getElementById('insightApprovalCircle').setAttribute('stroke-dasharray',`${ar}, 100`);
+        }
+
+        function doLogout(e){e.preventDefault();if(confirm('Logout?')){localStorage.clear();window.location.href='/';}}
+        document.getElementById('sidebarLogout').addEventListener('click',doLogout);
+        document.getElementById('headerLogout').addEventListener('click',doLogout);
+        document.addEventListener('DOMContentLoaded',fetchDashboard);
+    </script>
+</body>
+</html>

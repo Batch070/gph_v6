@@ -1,0 +1,572 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Helvetica, Arial, sans-serif;
+}
+
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+}
+
+:root {
+    --primary-color: #1e3a8a;
+    --primary-light: #3b82f6;
+    --accent-color: #0f172a;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --bg-light: #f8fafc;
+    --white: #ffffff;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --radius-md: 12px;
+    --radius-lg: 20px;
+}
+
+/* ─── GLOBAL IMAGE SAFETY ─────────────────────────────────── */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+body {
+    background-color: var(--bg-light);
+    min-height: 100vh;
+    min-height: 100dvh;
+    /* dynamic viewport height for mobile */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+}
+
+.main-container {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--white);
+}
+
+/* ================= LEFT SIDE ================= */
+.illustration-side {
+    flex: 1.2;
+    position: relative;
+    background-color: var(--primary-color);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    /* prevent flex overflow */
+}
+
+.illustration-side img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0.9;
+    position: absolute;
+    inset: 0;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+            rgba(30, 58, 138, 0.45),
+            rgba(15, 23, 42, 0.65));
+    z-index: 2;
+}
+
+.welcome-content {
+    position: absolute;
+    bottom: 60px;
+    left: 60px;
+    right: 60px;
+    color: var(--white);
+    z-index: 10;
+}
+
+.welcome-content h1 {
+    font-size: clamp(1.6rem, 2.5vw, 2.8rem);
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    line-height: 1.2;
+}
+
+.welcome-content p {
+    font-size: clamp(0.9rem, 1.1vw, 1.1rem);
+    max-width: 500px;
+    line-height: 1.6;
+    opacity: 0.95;
+}
+
+/* ================= RIGHT SIDE ================= */
+.login-side {
+    flex: 0.8;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    background-color: var(--white);
+    overflow-y: auto;
+    min-width: 0;
+}
+
+/* HEADER + LOGO */
+.login-header {
+    margin-bottom: 32px;
+    text-align: center;
+    width: 100%;
+    max-width: 420px;
+}
+
+/* ✅ COLLEGE LOGO */
+.college-logo {
+    width: 80px;
+    max-width: 80px;
+    height: auto;
+    margin: 0 auto 14px;
+    display: block;
+    opacity: 0;
+    mix-blend-mode: multiply;
+    animation: fadeInUp 0.6s ease forwards;
+    animation-delay: 0.05s;
+    object-fit: contain;
+}
+
+.college-name {
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.project-title {
+    font-size: clamp(1.4rem, 2vw, 2.2rem);
+    color: var(--primary-color);
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+/* ================= LOGIN CARD ================= */
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+/* ✅ ROLE TOGGLE */
+.role-toggle {
+    display: flex;
+    gap: 0;
+    margin-bottom: 24px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.role-btn {
+    flex: 1;
+    padding: 12px 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: var(--bg-light);
+    color: var(--text-muted);
+    font-family: inherit;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.role-btn.active {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.role-btn:hover:not(.active) {
+    background-color: #e2e8f0;
+}
+
+/* ✅ ERROR MESSAGE */
+.error-msg {
+    background-color: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    animation: fadeInUp 0.3s ease forwards;
+    word-wrap: break-word;
+}
+
+/* ✅ DISABLED BUTTON */
+.login-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    font-size: 0.95rem;
+    color: var(--text-main);
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.08);
+}
+
+.login-btn {
+    width: 100%;
+    padding: 16px;
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+    font-family: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.login-btn:hover {
+    background-color: #1e40af;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ✅ SECURITY BADGE */
+.security-badge {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-top: 14px;
+    padding: 0;
+    background-color: transparent;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+.security-badge svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+}
+
+/* ================= ANIMATION ================= */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-header,
+.form-group,
+.login-btn,
+.security-badge,
+.role-toggle {
+    animation: fadeInUp 0.6s ease forwards;
+    opacity: 0;
+}
+
+.login-header {
+    animation-delay: 0.1s;
+}
+
+.role-toggle {
+    animation-delay: 0.15s;
+}
+
+.form-group:nth-child(1) {
+    animation-delay: 0.2s;
+}
+
+.form-group:nth-child(2) {
+    animation-delay: 0.3s;
+}
+
+.login-btn {
+    animation-delay: 0.4s;
+}
+
+.security-badge {
+    animation-delay: 0.5s;
+}
+
+/* ========================================================= */
+/* ================= RESPONSIVE BREAKPOINTS ================= */
+/* ========================================================= */
+
+/* ─── Large desktops (>1440px) ────────────────────────────── */
+@media (min-width: 1441px) {
+    .login-side {
+        padding: 80px;
+    }
+
+    .login-card {
+        max-width: 460px;
+    }
+}
+
+/* ─── Small laptops / tablets landscape (<=1024px) ────────── */
+@media (max-width: 1024px) {
+    .illustration-side {
+        display: none;
+    }
+
+    .main-container {
+        justify-content: center;
+    }
+
+    .login-side {
+        flex: 1;
+        padding: 40px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+}
+
+/* ─── Tablets portrait (<=768px) ──────────────────────────── */
+@media (max-width: 768px) {
+    .login-side {
+        padding: 32px 24px;
+    }
+
+    .login-header {
+        margin-bottom: 24px;
+    }
+
+    .college-logo {
+        width: 68px;
+        max-width: 68px;
+    }
+
+    .college-name {
+        font-size: 0.78rem;
+        letter-spacing: 1.5px;
+    }
+
+    .project-title {
+        font-size: 1.5rem;
+    }
+
+    .role-btn {
+        padding: 10px 6px;
+        font-size: 0.85rem;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .input-wrapper input {
+        padding: 12px 14px;
+        font-size: 0.95rem;
+    }
+
+    .login-btn {
+        padding: 14px;
+        font-size: 1rem;
+    }
+}
+
+/* ─── Mobile phones (<=480px) ─────────────────────────────── */
+@media (max-width: 480px) {
+    body {
+        align-items: flex-start;
+    }
+
+    .main-container {
+        min-height: 100vh;
+        min-height: 100dvh;
+    }
+
+    .login-side {
+        padding: 28px 20px;
+        justify-content: flex-start;
+        padding-top: 40px;
+    }
+
+    .login-header {
+        margin-bottom: 20px;
+    }
+
+    .college-logo {
+        width: 60px;
+        max-width: 60px;
+        margin-bottom: 10px;
+    }
+
+    .college-name {
+        font-size: 0.7rem;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+    }
+
+    .project-title {
+        font-size: 1.3rem;
+    }
+
+    .role-toggle {
+        margin-bottom: 20px;
+    }
+
+    .role-btn {
+        padding: 10px 4px;
+        font-size: 0.82rem;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-group label {
+        font-size: 0.88rem;
+        margin-bottom: 6px;
+    }
+
+    .input-wrapper input {
+        padding: 12px;
+        font-size: 0.92rem;
+    }
+
+    .login-btn {
+        padding: 14px;
+        font-size: 0.95rem;
+    }
+
+    .login-card {
+        max-width: 100%;
+    }
+
+    .error-msg {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+}
+
+/* ─── Very small phones (<=360px) ─────────────────────────── */
+@media (max-width: 360px) {
+    .login-side {
+        padding: 24px 16px;
+        padding-top: 32px;
+    }
+
+    .college-logo {
+        width: 52px;
+        max-width: 52px;
+    }
+
+    .project-title {
+        font-size: 1.15rem;
+    }
+
+    .role-btn {
+        font-size: 0.78rem;
+        padding: 9px 2px;
+    }
+
+    .input-wrapper input {
+        padding: 10px;
+        font-size: 0.88rem;
+    }
+
+    .login-btn {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ─── Landscape phones ────────────────────────────────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+    .login-side {
+        padding: 16px 32px;
+        justify-content: flex-start;
+        overflow-y: auto;
+    }
+
+    .login-header {
+        margin-bottom: 12px;
+    }
+
+    .college-logo {
+        width: 44px;
+        max-width: 44px;
+        margin-bottom: 6px;
+    }
+
+    .college-name {
+        font-size: 0.7rem;
+        margin-bottom: 2px;
+    }
+
+    .project-title {
+        font-size: 1.1rem;
+    }
+
+    .form-group {
+        margin-bottom: 10px;
+    }
+
+    .input-wrapper input {
+        padding: 8px 12px;
+    }
+
+    .login-btn {
+        padding: 10px;
+    }
+
+    .role-toggle {
+        margin-bottom: 12px;
+    }
+}

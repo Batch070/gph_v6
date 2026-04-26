@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | GPH Automated Fine Payment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/font-awesome.css">
+    <link rel="stylesheet" href="/static/dashboard.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>GPH</h2>
+                    <p>Fine Portal</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="#" data-section="dashboard"><i class="fa-solid fa-table-columns"></i>
+                            <span>Dashboard</span></a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="fines"><i class="fa-solid fa-file-invoice-dollar"></i> <span>Fine
+                                Details</span></a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="approvals"><i class="fa-solid fa-clipboard-check"></i> <span>Approval
+                                Status</span></a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="history"><i class="fa-solid fa-clock-rotate-left"></i> <span>Payment
+                                History</span></a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="profile"><i class="fa-solid fa-user"></i> <span>Profile</span></a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="#" class="logout-link" id="sidebarLogout"><i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span></a>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper">
+            <!-- Background Overlay -->
+            <div class="bg-overlay"></div>
+
+            <!-- Header -->
+            <header class="top-header">
+                <div class="welcome-text animated-fade">
+                    <h1>Welcome, <span id="headerName">---</span> <span class="wave-emoji">&#128075;</span></h1>
+                    <p>Roll No: <span id="headerRollNo">---</span></p>
+                </div>
+
+                <!-- Minimal Educational Illustration -->
+                <div class="header-illustration">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z"
+                            fill="#1e3a8a" fill-opacity="0.1" />
+                        <path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z"
+                            stroke="#1e3a8a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+
+                <div class="header-actions">
+                    <button class="icon-btn" title="Notifications"><i class="fa-regular fa-bell"></i></button>
+                    <button class="logout-btn-small" title="Logout" id="headerLogout"><i
+                            class="fa-solid fa-power-off"></i></button>
+                </div>
+            </header>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-overlay">
+                <div class="spinner"></div>
+                <p class="loading-text">Loading your dashboard...</p>
+            </div>
+
+            <!-- Main Content (hidden until data loads) -->
+            <main class="content-area" id="mainContent" style="display: none;">
+
+                <!-- Section 1: Student Snapshot -->
+                <section class="card snapshot-card animated-card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-id-card"></i> Student Snapshot</h3>
+                        <span class="status-badge" id="studentStatusBadge">Status: ---</span>
+                    </div>
+                    <div class="snapshot-grid">
+                        <div class="info-item">
+                            <label>Roll Number</label>
+                            <div class="info-value" id="snapRollNo">---</div>
+                        </div>
+                        <div class="info-item">
+                            <label>Student Name</label>
+                            <div class="info-value" id="snapName">---</div>
+                        </div>
+                        <div class="info-item">
+                            <label>Branch</label>
+                            <div class="info-value" id="snapBranch">---</div>
+                        </div>
+                        <div class="info-item">
+                            <label>Semester</label>
+                            <div class="info-value" id="snapSemester">---</div>
+                        </div>
+                        <div class="info-item">
+                            <label>Session</label>
+                            <div class="info-value" id="snapSession">---</div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="dashboard-grid">
+                    <!-- Section 2: Academic Profile -->
+                    <section class="card profile-card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-building-columns"></i> Academic Profile</h3>
+                        </div>
+                        <div class="profile-details" id="profileDetails">
+                            <div class="detail-row">
+                                <span class="label">Branch:</span>
+                                <span class="value" id="profBranch">---</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Semester:</span>
+                                <span class="value" id="profSemester">---</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Session:</span>
+                                <span class="value" id="profSession">---</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">NCC Cadet:</span>
+                                <span class="value" id="profNCC">---</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Hosteller:</span>
+                                <span class="value" id="profHosteller">---</span>
+                            </div>
+                            <div class="detail-row" id="profHostelSupRow" style="display: none;">
+                                <span class="label">Hostel Sup:</span>
+                                <span class="value" id="profHostelSup">---</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section 3: Attendance Overview -->
+                    <section class="card attendance-card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-clipboard-user"></i> Attendance</h3>
+                        </div>
+                        <div class="attendance-stats">
+                            <!-- Theory Attendance -->
+                            <div class="stat-item">
+                                <div class="progress-circle" id="theoryCircle">
+                                    <svg viewBox="0 0 36 36">
+                                        <path class="circle-bg"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" id="theoryProgress" stroke="#1e3a8a"
+                                            stroke-dasharray="0, 100"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    </svg>
+                                    <div class="percentage" id="theoryPercent">0%</div>
+                                </div>
+                                <p>Theory</p>
+                            </div>
+                            <!-- Practical Attendance -->
+                            <div class="stat-item">
+                                <div class="progress-circle" id="practicalCircle">
+                                    <svg viewBox="0 0 36 36">
+                                        <path class="circle-bg"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" id="practicalProgress" stroke="#10b981"
+                                            stroke-dasharray="0, 100"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    </svg>
+                                    <div class="percentage" id="practicalPercent">0%</div>
+                                </div>
+                                <p>Practical</p>
+                            </div>
+                            <div class="stat-summary">
+                                <span class="status-tag" id="attendanceTag">---</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section 4: Fine & Dues -->
+                    <section class="card fine-card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-indian-rupee-sign"></i> Fine & Dues</h3>
+                        </div>
+                        <div class="fine-summary">
+                            <div class="fine-item">
+                                <span>Total Fine</span>
+                                <span class="amount" id="totalFine">&#8377; 0</span>
+                            </div>
+                            <div class="fine-item">
+                                <span>Paid</span>
+                                <span class="amount text-green" id="paidFine">&#8377; 0</span>
+                            </div>
+                            <div class="fine-item highlight">
+                                <span>Pending</span>
+                                <span class="amount text-red" id="pendingFine">&#8377; 0</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="bottom-grid">
+                    <!-- Section 5: Request & Approval -->
+                    <section class="card request-card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-list-check"></i> Approvals</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="approval-table">
+                                <thead>
+                                    <tr>
+                                        <th>Role</th>
+                                        <th>Faculty Name</th>
+                                        <th>Status</th>
+                                        <th>Remark</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="approvalTableBody">
+                                    <tr>
+                                        <td colspan="4" class="no-data">No clearance requests submitted yet.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Section 6: Approval Tracking Timeline -->
+                    <section class="card timeline-card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-timeline"></i> Timeline</h3>
+                        </div>
+                        <div class="timeline" id="timelineContainer">
+                            <div class="no-data">No activity yet.</div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Section 7: Action Controls -->
+                <div class="action-bar">
+                    <button class="btn btn-primary" id="submitRequestBtn">Submit Requests</button>
+                    <button class="btn btn-pay" id="payFineBtn" disabled>Pay Fine</button>
+                    <button class="btn btn-receipt" id="downloadReceiptBtn" style="display: none;">
+                        <i class="fa-solid fa-file-arrow-down"></i> Download Receipt
+                    </button>
+                    <button class="btn btn-primary" id="downloadAdmitCardBtn" style="display: none;">
+                        <i class="fa-solid fa-id-badge"></i> Download Admit Card
+                    </button>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        // ── Config ──────────────────────────────────────────────
+        const API_BASE = '';
+        const token = localStorage.getItem('access_token');
+
+        // ── Auth Guard ──────────────────────────────────────────
+        if (!token) {
+            window.location.href = '/';
+        }
+
+        const authHeaders = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        };
+
+        // ── DOM References ──────────────────────────────────────
+        const loadingState = document.getElementById('loadingState');
+        const mainContent = document.getElementById('mainContent');
+
+        // Header
+        const headerName = document.getElementById('headerName');
+        const headerRollNo = document.getElementById('headerRollNo');
+
+        // Snapshot
+        const snapRollNo = document.getElementById('snapRollNo');
+        const snapName = document.getElementById('snapName');
+        const snapBranch = document.getElementById('snapBranch');
+        const snapSemester = document.getElementById('snapSemester');
+        const snapSession = document.getElementById('snapSession');
+        const studentStatusBadge = document.getElementById('studentStatusBadge');
+
+        // Profile
+        const profBranch = document.getElementById('profBranch');
+        const profSemester = document.getElementById('profSemester');
+        const profSession = document.getElementById('profSession');
+        const profNCC = document.getElementById('profNCC');
+        const profHosteller = document.getElementById('profHosteller');
+        const profHostelSupRow = document.getElementById('profHostelSupRow');
+        const profHostelSup = document.getElementById('profHostelSup');
+
+        // Attendance
+        const theoryProgress = document.getElementById('theoryProgress');
+        const practicalProgress = document.getElementById('practicalProgress');
+        const theoryPercent = document.getElementById('theoryPercent');
+        const practicalPercent = document.getElementById('practicalPercent');
+        const attendanceTag = document.getElementById('attendanceTag');
+
+        // Fines
+        const totalFineEl = document.getElementById('totalFine');
+        const paidFineEl = document.getElementById('paidFine');
+        const pendingFineEl = document.getElementById('pendingFine');
+
+        // Approvals & Timeline
+        const approvalTableBody = document.getElementById('approvalTableBody');
+        const timelineContainer = document.getElementById('timelineContainer');
+
+        // Buttons
+        const submitRequestBtn = document.getElementById('submitRequestBtn');
+        const payFineBtn = document.getElementById('payFineBtn');
+        const downloadReceiptBtn = document.getElementById('downloadReceiptBtn');
+        const downloadAdmitCardBtn = document.getElementById('downloadAdmitCardBtn');
+
+        // ── Helpers ─────────────────────────────────────────────
+        function semesterLabel(num) {
+            const suffixes = { 1: 'st', 2: 'nd', 3: 'rd' };
+            return `${num}${suffixes[num] || 'th'} Semester`;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        function formatTime(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function roleLabel(role) {
+            const map = {
+                'ClassIncharge': 'Class Incharge',
+                'HOD': 'HOD',
+                'PTI': 'PTI',
+                'ANO': 'ANO (NCC)',
+                'Warden': 'Warden',
+                'Librarian': 'Library',
+                'CanteenOwner': 'Canteen',
+                'HostelSuperintendent_Boys': 'Hostel Superintendent (Boys)',
+                'HostelSuperintendent_Girls': 'Hostel Superintendent (Girls)',
+            };
+            return map[role] || role;
+        }
+
+        function showToast(message, type = 'success') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        // ── Animate Progress Circle ─────────────────────────────
+        function animateCircle(el, percent) {
+            let current = 0;
+            const step = percent / 30;
+            const interval = setInterval(() => {
+                current += step;
+                if (current >= percent) {
+                    current = percent;
+                    clearInterval(interval);
+                }
+                el.setAttribute('stroke-dasharray', `${current}, 100`);
+            }, 20);
+        }
+
+        // ── Set Status Badge ────────────────────────────────────
+        function setStatusBadge(status) {
+            studentStatusBadge.textContent = `Status: ${status}`;
+            studentStatusBadge.className = 'status-badge';
+            if (status === 'Pending') {
+                studentStatusBadge.classList.add('status-pending', 'badge-pulse');
+            } else if (status === 'Approved') {
+                studentStatusBadge.classList.add('status-approved');
+            } else if (status === 'Cleared') {
+                studentStatusBadge.classList.add('status-cleared');
+            } else {
+                studentStatusBadge.classList.add('status-pending');
+            }
+            
+            // Show Admit Card if Cleared
+            if (status === 'Cleared') {
+                downloadAdmitCardBtn.style.display = 'inline-flex';
+            } else {
+                downloadAdmitCardBtn.style.display = 'none';
+            }
+        }
+
+        // ── Populate Dashboard ──────────────────────────────────
+        function populateDashboard(data) {
+            const p = data.profile;
+
+            // Header
+            headerName.textContent = p.name;
+            headerRollNo.textContent = p.roll_no;
+
+            // Snapshot
+            snapRollNo.textContent = p.roll_no;
+            snapName.textContent = p.name;
+            snapBranch.textContent = p.branch;
+            snapSemester.textContent = semesterLabel(p.semester);
+            snapSession.textContent = p.academic_year;
+            setStatusBadge(data.profile_status || p.status || 'Pending');
+
+            // Profile
+            profBranch.textContent = p.branch;
+            profSemester.textContent = semesterLabel(p.semester);
+            profSession.textContent = p.academic_year;
+            profNCC.textContent = p.ncc ? 'Yes' : 'No';
+            profHosteller.textContent = p.hosteller ? 'Yes' : 'No';
+
+            if (p.hosteller && data.hostel_superintendent) {
+                profHostelSupRow.style.display = 'flex';
+                profHostelSup.textContent = data.hostel_superintendent;
+            } else {
+                profHostelSupRow.style.display = 'none';
+            }
+
+            // Attendance
+            const theory = Math.round(data.attendance.theory_attendance);
+            const practical = Math.round(data.attendance.practical_attendance);
+
+            theoryPercent.textContent = `${theory}%`;
+            practicalPercent.textContent = `${practical}%`;
+            animateCircle(theoryProgress, theory);
+            animateCircle(practicalProgress, practical);
+
+            // Attendance eligibility
+            const eligible = theory >= 75 && practical >= 75;
+            attendanceTag.textContent = eligible ? 'Eligible' : 'Low Attendance';
+            attendanceTag.className = eligible ? 'status-tag tag-success' : 'status-tag tag-warning';
+
+            // Fine Summary
+            let totalFine = 0, paidAmount = 0, pendingAmount = 0;
+
+            if (data.fine_summary) {
+                totalFine = data.fine_summary.total_fine;
+                paidAmount = data.fine_summary.paid;
+                pendingAmount = data.fine_summary.pending;
+            } else if (data.fine) {
+                totalFine = data.fine.amount || 0;
+                paidAmount = data.fine.status === 'Paid' ? data.fine.amount : 0;
+                pendingAmount = data.fine.status === 'Unpaid' ? data.fine.amount : 0;
+            }
+
+            totalFineEl.textContent = `\u20B9 ${totalFine}`;
+            paidFineEl.textContent = `\u20B9 ${paidAmount}`;
+            pendingFineEl.textContent = `\u20B9 ${pendingAmount}`;
+
+            // Approvals Table
+            if (data.approvals && data.approvals.length > 0) {
+                approvalTableBody.innerHTML = data.approvals.map(a => {
+                    let badgeClass = 'badge-pending';
+                    let extraClass = '';
+                    if (a.status === 'Approved') badgeClass = 'badge-approved';
+                    else if (a.status === 'Rejected') { badgeClass = 'badge-rejected'; extraClass = 'pulse-red'; }
+                    else { extraClass = 'badge-pulse'; }
+
+                    return `<tr>
+                        <td>${roleLabel(a.faculty_role)}</td>
+                        <td>${a.faculty_name}</td>
+                        <td><span class="badge ${badgeClass} ${extraClass}">${a.status}</span></td>
+                        <td>${a.note || '-'}</td>
+                    </tr>`;
+                }).join('');
+            } else {
+                approvalTableBody.innerHTML = '<tr><td colspan="4" class="no-data">No clearance requests submitted yet.</td></tr>';
+            }
+
+            // Timeline
+            buildTimeline(data.approvals || []);
+
+            // Button states
+            if (data.approvals && data.approvals.length > 0) {
+                submitRequestBtn.disabled = true;
+                submitRequestBtn.textContent = 'Requests Submitted';
+            } else if (!data.can_submit_request) {
+                submitRequestBtn.disabled = true;
+                submitRequestBtn.textContent = 'Awaiting Data Upload';
+            } else {
+                submitRequestBtn.disabled = false;
+                submitRequestBtn.textContent = 'Submit Requests';
+            }
+
+            if (data.can_pay && pendingAmount > 0) {
+                payFineBtn.disabled = false;
+                payFineBtn.textContent = `Pay Fine (\u20B9 ${pendingAmount})`;
+                downloadReceiptBtn.style.display = 'none';
+            } else if (pendingAmount <= 0 && totalFine > 0) {
+                payFineBtn.disabled = true;
+                payFineBtn.textContent = 'Fine Paid \u2713';
+                payFineBtn.classList.add('btn-paid');
+                downloadReceiptBtn.style.display = 'inline-flex';
+            } else {
+                payFineBtn.disabled = true;
+                payFineBtn.textContent = pendingAmount > 0 ? `Pay Fine (\u20B9 ${pendingAmount})` : 'No Fine Due';
+                downloadReceiptBtn.style.display = 'none';
+            }
+        }
+
+        // ── Build Timeline ──────────────────────────────────────
+        function buildTimeline(approvals) {
+            if (!approvals || approvals.length === 0) {
+                timelineContainer.innerHTML = '<div class="no-data">No activity yet. Submit clearance requests to begin.</div>';
+                return;
+            }
+
+            let html = '';
+
+            // First item: Request Submitted
+            html += `
+                <div class="timeline-item completed animated-item">
+                    <div class="dot"></div>
+                    <div class="content">
+                        <h4>Clearance Request Submitted</h4>
+                        <span class="time">All clearance requests created</span>
+                    </div>
+                </div>`;
+
+            // One item per approval
+            approvals.forEach(a => {
+                let itemClass = 'active';
+                let label = `${roleLabel(a.faculty_role)} - Pending`;
+
+                if (a.status === 'Approved') {
+                    itemClass = 'completed';
+                    label = `${roleLabel(a.faculty_role)} Approved`;
+                } else if (a.status === 'Rejected') {
+                    itemClass = 'rejected';
+                    label = `${roleLabel(a.faculty_role)} Rejected`;
+                }
+
+                html += `
+                    <div class="timeline-item ${itemClass} animated-item">
+                        <div class="dot"></div>
+                        <div class="content">
+                            <h4>${label}</h4>
+                            <span class="time">${a.note || 'In Progress'}</span>
+                        </div>
+                    </div>`;
+            });
+
+            timelineContainer.innerHTML = html;
+        }
+
+        // ── Fetch Dashboard Data ────────────────────────────────
+        async function loadDashboard() {
+            try {
+                const res = await fetch(`${API_BASE}/api/student/dashboard`, {
+                    headers: authHeaders,
+                });
+
+                if (res.status === 401) {
+                    localStorage.clear();
+                    window.location.href = '/';
+                    return;
+                }
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    showToast(err.detail || 'Failed to load dashboard', 'error');
+                    return;
+                }
+
+                const data = await res.json();
+                populateDashboard(data);
+
+                loadingState.style.display = 'none';
+                mainContent.style.display = 'flex';
+
+            } catch (err) {
+                console.error('Dashboard load error:', err);
+                showToast('Network error. Please try again.', 'error');
+            }
+        }
+
+        // ── Submit Request Handler ──────────────────────────────
+        submitRequestBtn.addEventListener('click', async () => {
+            if (submitRequestBtn.disabled) return;
+
+            submitRequestBtn.disabled = true;
+            submitRequestBtn.textContent = 'Submitting...';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/student/submit-request`, {
+                    method: 'POST',
+                    headers: authHeaders,
+                });
+
+                if (res.status === 401) {
+                    localStorage.clear();
+                    window.location.href = '/';
+                    return;
+                }
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showToast(data.detail || 'Failed to submit requests', 'error');
+                    submitRequestBtn.disabled = false;
+                    submitRequestBtn.textContent = 'Submit Requests';
+                    return;
+                }
+
+                showToast(`${data.message} (${data.requests_created} requests created)`, 'success');
+
+                // Reload dashboard to reflect new state
+                setTimeout(() => loadDashboard(), 1000);
+
+            } catch (err) {
+                console.error('Submit error:', err);
+                showToast('Network error. Please try again.', 'error');
+                submitRequestBtn.disabled = false;
+                submitRequestBtn.textContent = 'Submit Requests';
+            }
+        });
+
+        // ── Pay Fine Handler ────────────────────────────────────
+        payFineBtn.addEventListener('click', async () => {
+            if (payFineBtn.disabled) return;
+            
+            payFineBtn.disabled = true;
+            payFineBtn.textContent = 'Initializing...';
+            
+            try {
+                // 1. Create order on backend
+                const res = await fetch(`${API_BASE}/api/student/create-razorpay-order`, {
+                    method: 'POST',
+                    headers: authHeaders,
+                });
+                
+                if (res.status === 401) {
+                    localStorage.clear();
+                    window.location.href = '/';
+                    return;
+                }
+                
+                const orderData = await res.json();
+                
+                if (!res.ok) {
+                    showToast(orderData.detail || 'Failed to initialize payment', 'error');
+                    payFineBtn.disabled = false;
+                    payFineBtn.textContent = 'Pay Fine';
+                    return;
+                }
+                
+                // 2. Initialize Razorpay Checkout
+                const options = {
+                    key: orderData.key_id,
+                    amount: orderData.amount,
+                    currency: orderData.currency,
+                    name: "GPH Fine Payment",
+                    description: "Semester Fine",
+                    order_id: orderData.order_id,
+                    handler: function (response) {
+                        // Success callback. Real verification happens via webhook.
+                        showToast('Payment successful! Processing receipt...', 'success');
+                        
+                        // Show receipt button immediately (optimistic UI)
+                        payFineBtn.disabled = true;
+                        payFineBtn.textContent = 'Fine Paid \u2713';
+                        payFineBtn.classList.add('btn-paid');
+                        downloadReceiptBtn.style.display = 'inline-flex';
+                        
+                        setTimeout(() => loadDashboard(), 2000);
+                    },
+                    prefill: {
+                        name: headerName.textContent,
+                        contact: "" // Optional
+                    },
+                    theme: {
+                        color: "#1e3a8a"
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            payFineBtn.disabled = false;
+                            payFineBtn.textContent = 'Pay Fine';
+                        }
+                    }
+                };
+                
+                const rzp = new window.Razorpay(options);
+                rzp.on('payment.failed', function (response){
+                    showToast(response.error.description || 'Payment failed', 'error');
+                    payFineBtn.disabled = false;
+                    payFineBtn.textContent = 'Pay Fine';
+                });
+                rzp.open();
+                
+            } catch (err) {
+                console.error('Payment init error:', err);
+                showToast('Network error. Please try again.', 'error');
+                payFineBtn.disabled = false;
+                payFineBtn.textContent = 'Pay Fine';
+            }
+        });
+
+        // ── Logout Handlers ─────────────────────────────────────
+        function doLogout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_role');
+            localStorage.removeItem('token_role');
+            localStorage.removeItem('token_sub');
+            window.location.href = '/';
+        }
+
+        document.getElementById('sidebarLogout').addEventListener('click', (e) => { e.preventDefault(); doLogout(); });
+        document.getElementById('headerLogout').addEventListener('click', doLogout);
+
+        // ── Download Receipt Handler ─────────────────────────────
+        downloadReceiptBtn.addEventListener('click', async () => {
+            downloadReceiptBtn.disabled = true;
+            downloadReceiptBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Opening...';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/student/receipt`, {
+                    headers: authHeaders,
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    showToast(err.detail || 'Could not load receipt', 'error');
+                    return;
+                }
+
+                const html = await res.text();
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const win = window.open(url, '_blank');
+                // Revoke blob URL after the new window has loaded
+                if (win) {
+                    win.addEventListener('load', () => URL.revokeObjectURL(url), { once: true });
+                }
+            } catch (err) {
+                console.error('Receipt error:', err);
+                showToast('Network error. Please try again.', 'error');
+            } finally {
+                downloadReceiptBtn.disabled = false;
+                downloadReceiptBtn.innerHTML = '<i class="fa-solid fa-file-arrow-down"></i> Download Receipt';
+            }
+        });
+
+        // ── Download Admit Card Handler ──────────────────────────
+        downloadAdmitCardBtn.addEventListener('click', async () => {
+            const rollNo = headerRollNo.textContent;
+            if (!rollNo || rollNo === '---') return;
+            
+            const pdfUrl = `/static/admit_cards/${rollNo}.pdf`;
+            
+            try {
+                // Check if file exists by a fast HEAD request or simply open
+                const res = await fetch(pdfUrl, { method: 'HEAD' });
+                if (res.ok) {
+                    window.open(pdfUrl, '_blank');
+                } else {
+                    showToast('Admit card not found. It may not be uploaded yet.', 'warning');
+                }
+            } catch (err) {
+                console.error('Admit card fetch error:', err);
+                showToast('Error fetching admit card.', 'error');
+            }
+        });
+
+        // ── Sidebar Navigation (scroll to section) ──────────────
+        document.querySelectorAll('.sidebar-nav a[data-section]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+                link.parentElement.classList.add('active');
+
+                const section = link.dataset.section;
+                let target = null;
+
+                switch (section) {
+                    case 'dashboard': target = document.querySelector('.snapshot-card'); break;
+                    case 'fines': target = document.querySelector('.fine-card'); break;
+                    case 'approvals': target = document.querySelector('.request-card'); break;
+                    case 'history': target = document.querySelector('.timeline-card'); break;
+                    case 'profile': target = document.querySelector('.profile-card'); break;
+                }
+
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // ── Boot ────────────────────────────────────────────────
+        loadDashboard();
+
+        // ── Auto Refresh (Automatically reflect changes) ────────
+        setInterval(() => {
+            // Only refresh if student is idle and not in middle of payment
+            if (mainContent.style.display !== 'none') {
+                loadDashboard();
+            }
+        }, 20000); // Every 20 seconds
+    </script>
+</body>
+
+</html>

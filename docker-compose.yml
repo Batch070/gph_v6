@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: mark1_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - mark1_network
+    volumes:
+      - ./app/static:/app/app/static # For persisting uploaded images/pdfs
+
+  db:
+    image: mariadb:10.6
+    container_name: mark1_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mark1_db
+      MYSQL_USER: mark1_user
+      MYSQL_PASSWORD: mark1_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mark1_db_data:/var/lib/mysql
+    networks:
+      - mark1_network
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  mark1_network:
+    driver: bridge
+
+volumes:
+  mark1_db_data:

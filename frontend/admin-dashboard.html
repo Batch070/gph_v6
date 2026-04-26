@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | GPH Fine & Attendance Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/font-awesome.css">
+    <link rel="stylesheet" href="/static/admin-dashboard.css">
+    <style>
+        /* Specific Admin Additions for Charts or Layout if missing from base */
+        .admin-stat-card {
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .admin-stat-card.success {
+            border-left-color: var(--success);
+        }
+
+        .admin-stat-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .admin-stat-card.danger {
+            border-left-color: var(--danger);
+        }
+
+        .branch-filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- View Switching Radio Buttons - State Machine -->
+    <input type="radio" name="dashboard-view" id="view-overview" checked hidden>
+    <input type="radio" name="dashboard-view" id="view-branch-data" hidden>
+    <input type="radio" name="dashboard-view" id="view-students" hidden>
+    <input type="radio" name="dashboard-view" id="view-faculty" hidden>
+    <input type="radio" name="dashboard-view" id="view-admit-card" hidden>
+    <input type="radio" name="dashboard-view" id="view-attendance" hidden>
+    <input type="radio" name="dashboard-view" id="view-settings" hidden>
+
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>GPH</h2>
+                    <p>Admin Portal</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <label for="view-overview" class="nav-label active-overview">
+                            <i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label for="view-branch-data" class="nav-label active-branch-data">
+                            <i class="fa-solid fa-sitemap"></i> <span>Branch Data</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label for="view-students" class="nav-label active-students">
+                            <i class="fa-solid fa-user-graduate"></i> <span>Students</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label for="view-faculty" class="nav-label active-faculty">
+                            <i class="fa-solid fa-chalkboard-user"></i> <span>Faculty / Incharge</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label for="view-admit-card" class="nav-label active-admit-card">
+                            <i class="fa-solid fa-id-card-clip"></i> <span>Admit Card Upload</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label for="view-attendance" class="nav-label active-attendance">
+                            <i class="fa-solid fa-clipboard-user"></i> <span>Attendance Insights</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label for="view-settings" class="nav-label active-settings">
+                            <i class="fa-solid fa-gear"></i> <span>Settings</span>
+                        </label>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="#logout" class="logout-link" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span></a>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper">
+            <div class="bg-overlay"></div>
+
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="welcome-text animated-fade">
+                    <h1>Administrator Dashboard <span class="wave-emoji">👋</span></h1>
+                    <p>Manage Branches, Students, Faculty and Overall Analytics.</p>
+                </div>
+
+                <div class="header-actions">
+                    <button class="icon-btn" title="Global Notifications">
+                        <i class="fa-regular fa-bell"></i>
+                    </button>
+                    <button class="logout-btn-small" title="Logout" id="logout-btn-header">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+            </header>
+
+            <main class="content-area">
+
+                <!-- 1. DASHBOARD OVERVIEW -->
+                <div id="overview" class="dashboard-section">
+                    <section class="card animated-card snapshot-card mb-2">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-chart-pie"></i> Institution Overview</h3>
+                            <span class="badge badge-approved">Live Data</span>
+                        </div>
+                        <div class="snapshot-grid" id="admin-overview-stats">
+                            <!-- Populated via JS -->
+                            <div class="info-item admin-stat-card">
+                                <label>Total Fine Collected</label>
+                                <div class="info-value text-green">₹ 0</div>
+                            </div>
+                            <div class="info-item admin-stat-card">
+                                <label>Total Students</label>
+                                <div class="info-value">0</div>
+                            </div>
+                            <div class="info-item admin-stat-card">
+                                <label>Total Branches</label>
+                                <div class="info-value">0</div>
+                            </div>
+                            <div class="info-item admin-stat-card">
+                                <label>Total Semesters Active</label>
+                                <div class="info-value">0</div>
+                            </div>
+                            <div class="info-item admin-stat-card warning">
+                                <label>Pending Student Requests</label>
+                                <div class="info-value text-red">0</div>
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-top: 2rem; margin-bottom: 1rem; color: var(--text-light); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Student Demographics</h4>
+                        <div class="db-insights-grid" id="admin-student-demographics">
+                            <!-- Populated via JS -->
+                        </div>
+                    </section>
+
+                    <section class="card animated-card mb-2">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-database"></i> Database Insights: Class Incharges</h3>
+                        </div>
+                        <div class="db-insights-grid" id="admin-db-insights">
+                            <!-- Populated via JS -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 2. BRANCH DATA -->
+                <div id="branch-data" class="dashboard-section">
+                    <section class="card animated-card mb-2">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-sitemap"></i> Branch & Semester Fine Data</h3>
+                        </div>
+                        <div class="branch-filter-grid">
+                            <div class="form-group">
+                                <label>Select Department</label>
+                                <select class="form-control" id="branch-filter-dept">
+                                    <option value="all">All Departments</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Select Semester</label>
+                                <select class="form-control" id="branch-filter-sem">
+                                    <option value="all">All Semesters</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="display: flex; align-items: flex-end;">
+                                <button class="btn btn-primary" id="btn-filter-branch-data" style="width: 100%;"><i class="fa-solid fa-filter"></i>
+                                    Filter Results</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="card animated-card">
+                        <div class="table-responsive">
+                            <table class="approval-table custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Department</th>
+                                        <th>Semester</th>
+                                        <th>Total Students</th>
+                                        <th>Total Fine Generated</th>
+                                        <th>Total Fine Collected</th>
+                                        <th>Defaulters</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="branch-data-tbody">
+                                    <!-- JS populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 3. STUDENTS -->
+                <div id="students" class="dashboard-section">
+                    <section class="card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-user-graduate"></i> Global Student Profiles</h3>
+                            <div class="header-actions">
+                                <input type="text" id="admin-student-search" class="form-control form-control-sm"
+                                    placeholder="Search by Name or Roll No">
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="approval-table custom-table interactive-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student Details</th>
+                                        <th>Department / Sem</th>
+                                        <th>Theory Att.</th>
+                                        <th>Practical Att.</th>
+                                        <th>Total Fine</th>
+                                        <th>Profile</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-students-tbody">
+                                    <!-- JS populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 4. FACULTY / INCHARGE -->
+                <div id="faculty-management" class="dashboard-section">
+                    <section class="card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-chalkboard-user"></i> Faculty & Incharge Management</h3>
+                            <button class="btn btn-primary btn-sm" onclick="showAddFacultyModal()"><i class="fa-solid fa-plus"></i> Add Faculty</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="approval-table custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Faculty Member</th>
+                                        <th>Department</th>
+                                        <th>Role</th>
+                                        <th>Admin Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-faculty-tbody">
+                                    <!-- JS Populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 5. ADMIT CARD UPLOAD -->
+                <div id="admit-card" class="dashboard-section">
+                    <div class="dashboard-grid">
+                        <section class="card animated-card" style="grid-column: span 2;">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-id-card-clip"></i> Bulk Admit Card Upload</h3>
+                            </div>
+                            <div class="form-container">
+                                <form id="form-upload-admit-cards">
+                                    <div class="alert alert-info">
+                                        <strong><i class="fa-solid fa-circle-info"></i> How it works:</strong> Upload a ZIP
+                                        file containing admit card PDFs. The system will automatically map the files to
+                                        student profiles based on their Roll Numbers (Ensure file names follow:
+                                        <code>RollNo.pdf</code>).
+                                    </div>
+                                    <div class="form-group mt-2">
+                                        <label>Upload ZIP containing Admit Cards</label>
+                                        <input type="file" id="admit-card-zip" class="form-control" accept=".zip">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-2" style="width: 100%;"><i
+                                            class="fa-solid fa-cloud-arrow-up"></i> Start Bulk Upload & Auto-Link</button>
+                                </form>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- 6. ATTENDANCE INSIGHTS -->
+                <div id="attendance-insights" class="dashboard-section">
+                    <h2 class="section-title-transparent"><i class="fa-solid fa-chart-simple"></i> Global Attendance
+                        Analytics</h2>
+                    <div class="semester-cards-grid" id="admin-attendance-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- 7. SETTINGS -->
+                <div id="settings" class="dashboard-section">
+                    <section class="card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-gear"></i> System Settings</h3>
+                        </div>
+                        <div class="form-container">
+                            <div class="report-item danger-zone-card mt-2">
+                                <span class="text-red"><i class="fa-solid fa-triangle-exclamation"
+                                        style="margin-right: 8px;"></i> Reset Entire Academic Year Data</span>
+                                <button class="btn btn-danger btn-sm" onclick="resetSystemData()">Erase Data</button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+            </main>
+        </div>
+    </div>
+    <script src="/static/admin-dashboard.js"></script>
+</body>
+
+</html>

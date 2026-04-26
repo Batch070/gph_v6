@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPH Automated Fine Payment System - Project Documentation</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #3b82f6;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --border: #e2e8f0;
+        }
+        
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #fff;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding-bottom: 30px;
+            border-bottom: 3px solid var(--primary);
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: var(--primary);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: var(--gray);
+            font-size: 1.2em;
+        }
+        
+        h2 {
+            color: var(--primary);
+            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        h3 {
+            color: var(--secondary);
+            font-size: 1.3em;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+        }
+        
+        ul, ol {
+            margin-bottom: 20px;
+            padding-left: 25px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .tech-card {
+            background: var(--light);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .tech-card h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .workflow-box {
+            background-color: #f0fdf4;
+            border-left: 4px solid #16a34a;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        
+        th, td {
+            border: 1px solid var(--border);
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: var(--light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+        
+        .print-btn {
+            display: block;
+            width: 200px;
+            margin: 0 auto 40px;
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+        
+        .print-btn:hover {
+            background-color: var(--dark);
+        }
+        
+        @media print {
+            body {
+                padding: 0;
+                max-width: 100%;
+            }
+            .print-btn {
+                display: none;
+            }
+            .tech-grid {
+                page-break-inside: avoid;
+            }
+            .workflow-box {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="print-btn" onclick="window.print()">Save as PDF</button>
+
+    <div class="header">
+        <h1>GPH Automated Fine Payment System</h1>
+        <p>Comprehensive Project Documentation & Architecture</p>
+        <p style="font-size: 0.9em; margin-top: 10px;">Date: April 2026</p>
+    </div>
+
+    <h2>1. Project Overview</h2>
+    <p>The <strong>GPH Automated Fine Payment System</strong> is a comprehensive digital solution designed for Government Polytechnic Hamirpur to automate the student clearance process, attendance tracking, and fine collection. It replaces manual paperwork with a streamlined, multi-role digital workflow.</p>
+
+    <h2>2. Technology Stack</h2>
+    <p>The application is built using a modern, scalable, and lightweight technology stack to ensure high performance and easy deployment.</p>
+    
+    <div class="tech-grid">
+        <div class="tech-card">
+            <h4>Backend (API Server)</h4>
+            <ul>
+                <li><strong>FastAPI (Python):</strong> High-performance web framework for building APIs.</li>
+                <li><strong>Uvicorn:</strong> Lightning-fast ASGI server.</li>
+                <li><strong>SQLAlchemy:</strong> ORM for database interactions.</li>
+                <li><strong>PyMySQL:</strong> Python driver for MySQL/MariaDB.</li>
+                <li><strong>Pydantic:</strong> Data validation and settings management.</li>
+            </ul>
+        </div>
+        <div class="tech-card">
+            <h4>Frontend (Client-Side)</h4>
+            <ul>
+                <li><strong>Vanilla HTML5 & CSS3:</strong> Pure semantic HTML with responsive CSS Grid/Flexbox architectures. No heavy frameworks (like React/Angular) to keep load times near-zero.</li>
+                <li><strong>Vanilla JavaScript:</strong> For DOM manipulation and API calls.</li>
+                <li><strong>FontAwesome 6:</strong> Self-hosted local webfonts for vector icons.</li>
+            </ul>
+        </div>
+        <div class="tech-card">
+            <h4>Database & Infrastructure</h4>
+            <ul>
+                <li><strong>MariaDB 10.6:</strong> Relational database for robust data persistence.</li>
+                <li><strong>Docker & Docker Compose:</strong> Containerization for seamless deployment and environment consistency.</li>
+            </ul>
+        </div>
+        <div class="tech-card">
+            <h4>Third-Party Integrations</h4>
+            <ul>
+                <li><strong>OpenRouter API (AI Vision):</strong> Uses Google's Gemma-4-26b-a4b-it vision model for OCR data extraction.</li>
+                <li><strong>Razorpay:</strong> Secure payment gateway integration with webhook verification.</li>
+                <li><strong>SMTP:</strong> Automated email dispatch for notifications and receipts.</li>
+            </ul>
+        </div>
+    </div>
+
+    <h2>3. System Architecture & Workflows</h2>
+
+    <h3>Role-Based Access Control (RBAC)</h3>
+    <p>The system features secure JWT-based authentication with highly specific role assignments:</p>
+    <ul>
+        <li><strong>Admin:</strong> Manages global settings, branches, faculty, and views institution-wide analytics.</li>
+        <li><strong>Student:</strong> Submits clearance requests, tracks attendance, and pays fines.</li>
+        <li><strong>Class Incharge:</strong> Uploads attendance, finalizes fines, and approves departmental clearance.</li>
+        <li><strong>HOD (Head of Department):</strong> Oversees department analytics and approves clearance.</li>
+        <li><strong>Specialized Faculty (PTI, Librarian, Canteen, ANO, Hostel Superintendent):</strong> Review and approve clearance requests specific to their domain.</li>
+    </ul>
+
+    <h3>AI-Powered Attendance Extraction Workflow</h3>
+    <div class="workflow-box">
+        <ol>
+            <li>The Class Incharge uploads a photo of the physical attendance register (JPEG/PNG).</li>
+            <li>The image is sent to the <strong>OpenRouter Vision AI Model</strong> alongside a strict system prompt.</li>
+            <li>The AI performs OCR and data extraction, analyzing the columns to find student names, roll numbers, and attended classes.</li>
+            <li>The AI returns structured JSON data, which the backend parses, validates against the database, and presents to the Incharge for review.</li>
+            <li>The Incharge confirms the data, saving it to the database.</li>
+        </ol>
+    </div>
+
+    <h3>Automated Fine Calculation Workflow</h3>
+    <p>Once all subject attendances are uploaded for a semester, the Class Incharge clicks "Finalize Attendance". This triggers a background task that:</p>
+    <ul>
+        <li>Aggregates total theory and practical classes for every student.</li>
+        <li>Calculates the attendance percentage.</li>
+        <li>Applies the institutional fine rules (e.g., if attendance is below 75%, a specific fine amount is levied).</li>
+        <li>Generates a <code>Fine</code> record in the database.</li>
+        <li>Sends an automated email report to the student detailing their attendance percentages and fine amount.</li>
+    </ul>
+
+    <h3>The Clearance & Payment Lifecycle</h3>
+    <div class="workflow-box">
+        <ol>
+            <li><strong>Initialization:</strong> A student logs into their dashboard. The system checks if their fine and attendance data has been uploaded.</li>
+            <li><strong>Request Submission:</strong> The student clicks "Request Clearance". The system automatically generates pending requests for all mandatory roles (HOD, Incharge, PTI, Librarian, Canteen) and conditional roles (ANO if NCC cadet, Hostel Superintendent if hosteller).</li>
+            <li><strong>Faculty Review:</strong> Faculty members log into their respective portals, see pending requests, and mark them as "Approved" or "Rejected" (with notes).</li>
+            <li><strong>Payment Unlock:</strong> Once <em>all</em> pending requests are approved, the payment gateway is unlocked on the student's dashboard.</li>
+            <li><strong>Transaction:</strong> The student pays via Razorpay. The backend creates an order, and the frontend opens the Razorpay checkout widget.</li>
+            <li><strong>Secure Verification:</strong> Razorpay fires a Webhook to the backend upon successful payment. The backend cryptographically verifies the webhook signature.</li>
+            <li><strong>Clearance:</strong> The student's fine status updates to "Paid", their overall status updates to "Cleared", and an HTML receipt is generated and emailed.</li>
+        </ol>
+    </div>
+
+    <h2>4. Security Measures</h2>
+    <ul>
+        <li><strong>Password Cryptography:</strong> Passwords are hashed using <code>bcrypt</code> with auto-generated salts.</li>
+        <li><strong>Stateless Authentication:</strong> JSON Web Tokens (JWT) are used for secure, stateless session management.</li>
+        <li><strong>Webhook Verification:</strong> Payment webhooks use HMAC-SHA256 signatures to prevent spoofing.</li>
+        <li><strong>Security Headers:</strong> Middleware injects strict Content-Security-Policy (CSP), X-Frame-Options, and XSS Protection headers.</li>
+        <li><strong>Rate Limiting:</strong> <code>slowapi</code> restricts login attempts to prevent brute-force attacks (e.g., 60 requests/minute limit).</li>
+        <li><strong>SQL Injection Prevention:</strong> SQLAlchemy ORM uses parameterized queries exclusively.</li>
+    </ul>
+
+    <h2>5. Database Schema Highlights</h2>
+    <table>
+        <tr>
+            <th>Table Name</th>
+            <th>Purpose</th>
+        </tr>
+        <tr>
+            <td><code>students</code></td>
+            <td>Stores student demographics, branch, semester, boolean flags (NCC, Hosteller), and aggregated attendance percentages.</td>
+        </tr>
+        <tr>
+            <td><code>faculty</code></td>
+            <td>Stores faculty credentials and specific roles (Enum: Admin, HOD, PTI, Librarian, etc.).</td>
+        </tr>
+        <tr>
+            <td><code>subject_attendance</code></td>
+            <td>Stores granular attendance data per subject, group type (Theory/Lab), and session mappings.</td>
+        </tr>
+        <tr>
+            <td><code>fines</code></td>
+            <td>Links to students; tracks fine amount, semester, payment status (Paid/Unpaid), and Razorpay transaction IDs.</td>
+        </tr>
+        <tr>
+            <td><code>requests</code></td>
+            <td>The core clearance ledger. Links a student to a faculty member, tracking Approval/Rejection status and notes.</td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        <p>GPH Automated Fine Payment System &copy; 2026. Designed for institutional efficiency and transparency.</p>
+    </div>
+
+</body>
+</html>

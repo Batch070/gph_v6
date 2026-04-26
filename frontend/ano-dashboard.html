@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANO Dashboard | GPH Automated Fine Payment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/font-awesome.css">
+    <link rel="stylesheet" href="/static/ano-dashboard.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>GPH</h2>
+                    <p>ANO Portal</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="#" data-section="overview"><i class="fa-solid fa-chart-pie"></i>
+                            <span>Overview</span></a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="requests"><i class="fa-solid fa-inbox"></i>
+                            <span>Requests</span></a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="students"><i class="fa-solid fa-users"></i>
+                            <span>Students</span></a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="settings"><i class="fa-solid fa-gear"></i>
+                            <span>Settings</span></a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="#" class="logout-link" id="sidebarLogout"><i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span></a>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper">
+            <div class="bg-overlay"></div>
+
+            <!-- Header -->
+            <header class="top-header">
+                <div class="welcome-text animated-fade">
+                    <h1>Welcome, <span id="headerName">ANO</span> <span class="wave-emoji">👋</span></h1>
+                    <p id="headerSubtitle">Associate NCC Officer</p>
+                </div>
+                <div class="header-illustration">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z"
+                            fill="#1e3a8a" fill-opacity="0.1" />
+                        <path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z"
+                            stroke="#1e3a8a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" title="Notifications"><i class="fa-regular fa-bell"></i></button>
+                    <button class="logout-btn-small" title="Logout" id="headerLogout"><i class="fa-solid fa-power-off"></i></button>
+                </div>
+            </header>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-overlay">
+                <div class="spinner"></div>
+                <p class="loading-text">Loading your dashboard...</p>
+            </div>
+
+            <!-- Main Content -->
+            <main class="content-area" id="mainContent" style="display:none;">
+
+                <!-- SECTION 1: OVERVIEW -->
+                <div id="sec-overview" class="dashboard-section">
+                    <section class="card snapshot-card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-chart-pie"></i> Dashboard Overview</h3>
+                            <span class="status-badge status-info">ANO — NCC Unit</span>
+                        </div>
+                        <div class="snapshot-grid">
+                            <div class="info-item">
+                                <label>Total NCC Students</label>
+                                <div class="info-value" id="statStudents">0</div>
+                            </div>
+                            <div class="info-item">
+                                <label>Pending Requests</label>
+                                <div class="info-value"><span class="badge badge-pending badge-pulse" id="statPending">0</span></div>
+                            </div>
+                            <div class="info-item">
+                                <label>Approved Requests</label>
+                                <div class="info-value text-green" id="statApproved">0</div>
+                            </div>
+                            <div class="info-item">
+                                <label>Low Attendance Students</label>
+                                <div class="info-value text-red" id="statLowAtt">0</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-database"></i> NCC Cadets Overview</h3>
+                        </div>
+                        <div class="student-insights-grid">
+                            <div class="insight-stat-card">
+                                <div class="progress-circle">
+                                    <svg viewBox="0 0 36 36">
+                                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" id="insightTheoryProgress" stroke="#1e3a8a" stroke-dasharray="0, 100"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    </svg>
+                                    <div class="percentage" id="insightTheoryPct">0%</div>
+                                </div>
+                                <p>Avg Theory Att.</p>
+                            </div>
+                            <div class="insight-stat-card">
+                                <div class="progress-circle">
+                                    <svg viewBox="0 0 36 36">
+                                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" id="insightPracticalProgress" stroke="#10b981" stroke-dasharray="0, 100"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    </svg>
+                                    <div class="percentage" id="insightPracticalPct">0%</div>
+                                </div>
+                                <p>Avg Practical Att.</p>
+                            </div>
+                            <div class="insight-count-card">
+                                <div class="count-icon ncc"><i class="fa-solid fa-flag"></i></div>
+                                <div class="count-value" id="insightNCC">0</div>
+                                <div class="count-label">NCC Cadets</div>
+                            </div>
+                            <div class="insight-count-card">
+                                <div class="count-icon"><i class="fa-solid fa-building"></i></div>
+                                <div class="count-value" id="insightBranches">0</div>
+                                <div class="count-label">Branches</div>
+                            </div>
+                            <div class="insight-count-card">
+                                <div class="count-icon paid"><i class="fa-solid fa-circle-check"></i></div>
+                                <div class="count-value" id="insightCleared">0</div>
+                                <div class="count-label">Cleared</div>
+                            </div>
+                            <div class="insight-count-card">
+                                <div class="count-icon unpaid"><i class="fa-solid fa-circle-xmark"></i></div>
+                                <div class="count-value" id="insightPendingCount">0</div>
+                                <div class="count-label">Pending</div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- SECTION 2: REQUESTS MODULE (Branch → Semester → Student List → Profile) -->
+                <div id="sec-requests" class="dashboard-section" style="display:none;">
+
+                    <!-- 1: Branch Cards -->
+                    <div id="branchSelectionView">
+                        <h2 class="section-title-transparent"><i class="fa-solid fa-inbox"></i> NCC Requests Dashboard</h2>
+
+                        <section class="card animated-card snapshot-card mb-2">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-chart-line"></i> Request Summary</h3>
+                            </div>
+                            <div class="snapshot-grid" style="grid-template-columns: repeat(3, 1fr);">
+                                <div class="info-item">
+                                    <label>Pending</label>
+                                    <div class="info-value"><span class="badge badge-pending badge-pulse" id="reqInsightPending">0</span></div>
+                                </div>
+                                <div class="info-item">
+                                    <label>Approved</label>
+                                    <div class="info-value"><span class="badge badge-approved" id="reqInsightApproved">0</span></div>
+                                </div>
+                                <div class="info-item">
+                                    <label>Rejected</label>
+                                    <div class="info-value"><span class="badge badge-rejected" id="reqInsightRejected">0</span></div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="semester-cards-grid" id="branchCardsContainer"></div>
+                    </div>
+
+                    <!-- 2: Semester Cards for selected Branch -->
+                    <div id="semesterSelectionView" style="display:none;">
+                        <div class="header-with-back mb-2">
+                            <button class="btn btn-outline btn-sm back-btn" onclick="goBackToBranches()"><i class="fa-solid fa-arrow-left"></i> Back to Branches</button>
+                            <h2 style="margin:0;" id="selectedBranchTitle">Branch — Semesters</h2>
+                        </div>
+                        <div class="semester-cards-grid" id="semesterCardsContainer"></div>
+                    </div>
+
+                    <!-- 3: Student List for selected Semester -->
+                    <div id="studentListView" style="display:none;">
+                        <div class="header-with-back mb-2">
+                            <button class="btn btn-outline btn-sm back-btn" onclick="goBackToSemesters()"><i class="fa-solid fa-arrow-left"></i> Back to Semesters</button>
+                            <h2 style="margin:0;" id="selectedSemesterTitle">Semester Requests</h2>
+                        </div>
+                        <section class="card animated-card">
+                            <div class="table-responsive">
+                                <table class="approval-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Student</th>
+                                            <th>Roll No</th>
+                                            <th>Branch / Sem</th>
+                                            <th>Status</th>
+                                            <th>Note</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="requestsTableBody"></tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- 4: Student Profile -->
+                    <div id="reqProfileView" style="display:none;">
+                        <div class="header-with-back mb-2">
+                            <button class="btn btn-outline btn-sm back-btn" id="backToRequests">
+                                <i class="fa-solid fa-arrow-left"></i> Back to Students
+                            </button>
+                        </div>
+                        <div class="profile-header card animated-card mb-2">
+                            <div class="avatar-lg" id="profileAvatar">?</div>
+                            <div>
+                                <h2 id="profileName" style="margin: 0; color: var(--primary-color);">---</h2>
+                                <p class="text-light" style="margin: 5px 0 0 0;" id="profileSubtitle">---</p>
+                            </div>
+                        </div>
+                        <div class="dashboard-grid profile-grid">
+                            <section class="card animated-card">
+                                <div class="card-header">
+                                    <h3><i class="fa-solid fa-user-graduate"></i> Academic Standing</h3>
+                                </div>
+                                <div class="profile-details-grid" id="profileDetailsGrid"></div>
+                            </section>
+                            <section class="card animated-card">
+                                <div class="card-header">
+                                    <h3><i class="fa-solid fa-timeline"></i> Request Info</h3>
+                                </div>
+                                <div class="timeline-container" id="profileTimeline"></div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: STUDENTS DIRECTORY -->
+                <div id="sec-students" class="dashboard-section" style="display:none;">
+                    <h2 class="section-title-transparent"><i class="fa-solid fa-users"></i> NCC Student Directory</h2>
+                    <section class="card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-address-book"></i> All Cadets</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="approval-table">
+                                <thead>
+                                    <tr>
+                                        <th>Cadet Name</th>
+                                        <th>Roll No</th>
+                                        <th>Branch</th>
+                                        <th>Semester</th>
+                                        <th>Theory Att.</th>
+                                        <th>Practical Att.</th>
+                                        <th>Status</th>
+                                        <th>Profile</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentDirectoryBody"></tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- SECTION 4: SETTINGS -->
+                <div id="sec-settings" class="dashboard-section" style="display:none;">
+                    <h2 class="section-title-transparent"><i class="fa-solid fa-gear"></i> Settings</h2>
+                    <section class="card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-user-pen"></i> ANO Preferences</h3>
+                        </div>
+                        <div class="form-container">
+                            <div class="form-group">
+                                <label>Display Name</label>
+                                <input type="text" class="form-control" id="settingsName" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Role</label>
+                                <input type="text" class="form-control" value="Associate NCC Officer" disabled>
+                            </div>
+                            <div class="alert alert-info">
+                                <strong><i class="fa-solid fa-circle-info"></i> Note:</strong> Contact the Admin to update sensitive account details.
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '';
+        const TOKEN = localStorage.getItem('access_token');
+        if (!TOKEN) window.location.href = '/';
+
+        let dashboardData = { faculty_name: '', faculty_role: '', students: [] };
+        let currentBranch = null, currentSemester = null;
+
+        // ── Helpers ─────────────────────────────────────────────
+        function authHeaders() {
+            return { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' };
+        }
+
+        function showToast(message, type = 'success') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        function semesterLabel(n) { const s = { 1:'st',2:'nd',3:'rd' }; return `${n}${s[n]||'th'} Semester`; }
+
+        // ── Section Switching ───────────────────────────────────
+        const sections = {
+            overview: document.getElementById('sec-overview'),
+            requests: document.getElementById('sec-requests'),
+            students: document.getElementById('sec-students'),
+            settings: document.getElementById('sec-settings'),
+        };
+        const reqViews = {
+            branches: document.getElementById('branchSelectionView'),
+            semesters: document.getElementById('semesterSelectionView'),
+            studentList: document.getElementById('studentListView'),
+            profile: document.getElementById('reqProfileView'),
+        };
+
+        function showSection(name) {
+            Object.keys(sections).forEach(key => {
+                sections[key].style.display = key === name ? 'block' : 'none';
+            });
+            if (name === 'requests') {
+                switchReqView('branches');
+            }
+        }
+
+        function switchReqView(v) {
+            Object.keys(reqViews).forEach(k => reqViews[k].style.display = k === v ? 'block' : 'none');
+        }
+
+        document.querySelectorAll('.sidebar-nav a[data-section]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+                link.parentElement.classList.add('active');
+                showSection(link.dataset.section);
+            });
+        });
+
+        // ── Fetch Dashboard Data ────────────────────────────────
+        async function fetchDashboard() {
+            try {
+                const res = await fetch(`${API_BASE}/api/faculty/dashboard`, { headers: authHeaders() });
+                if (res.status === 401) { localStorage.clear(); window.location.href = '/'; return; }
+                if (!res.ok) throw new Error('Failed to load dashboard');
+                dashboardData = await res.json();
+
+                document.getElementById('headerName').textContent = dashboardData.faculty_name;
+                document.getElementById('settingsName').value = dashboardData.faculty_name;
+
+                renderAll();
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'flex';
+            } catch (err) {
+                console.error(err);
+                showToast('Error loading dashboard. Please refresh.', 'error');
+            }
+        }
+
+        function renderAll() {
+            renderBranchCards();
+            renderStudentDirectory();
+            updateDashboardCounts();
+        }
+
+        // ── Branch Cards ────────────────────────────────────────
+        function renderBranchCards() {
+            const branches = [...new Set(dashboardData.students.map(s => s.branch))].sort();
+            const c = document.getElementById('branchCardsContainer');
+            if (!branches.length) { c.innerHTML = '<p class="no-data" style="grid-column:span 4;">No students found.</p>'; return; }
+            c.innerHTML = branches.map(branch => {
+                const branchStudents = dashboardData.students.filter(s => s.branch === branch);
+                const pending = branchStudents.filter(s => s.request_status === 'Pending').length;
+                const total = branchStudents.length;
+                return `<div class="semester-card animated-card" onclick="selectBranch('${branch}')">
+                    <div class="sem-icon"><i class="fa-solid fa-building-columns"></i></div>
+                    <h3>${branch}</h3>
+                    <p>${total} Students · ${pending} Pending</p>
+                    <div class="card-action-hint">View Semesters <i class="fa-solid fa-arrow-right"></i></div>
+                </div>`;
+            }).join('');
+        }
+
+        function selectBranch(branch) {
+            currentBranch = branch;
+            document.getElementById('selectedBranchTitle').textContent = `${branch} — Semesters`;
+            renderSemesterCards();
+            switchReqView('semesters');
+        }
+
+        function goBackToBranches() { switchReqView('branches'); }
+
+        // ── Semester Cards (filtered by branch) ─────────────────
+        function renderSemesterCards() {
+            const branchStudents = dashboardData.students.filter(s => s.branch === currentBranch);
+            const semesters = [...new Set(branchStudents.map(s => s.semester))].sort((a,b) => a-b);
+            const c = document.getElementById('semesterCardsContainer');
+            if (!semesters.length) { c.innerHTML = '<p class="no-data" style="grid-column:span 4;">No students found.</p>'; return; }
+            c.innerHTML = semesters.map(sem => {
+                const pending = branchStudents.filter(s => s.semester === sem && s.request_status === 'Pending').length;
+                return `<div class="semester-card animated-card" onclick="selectSemester(${sem})"><div class="sem-icon"><i class="fa-solid fa-building-columns"></i></div><h3>${semesterLabel(sem)}</h3><p>${pending} Pending Requests</p><div class="card-action-hint">Manage Students <i class="fa-solid fa-arrow-right"></i></div></div>`;
+            }).join('');
+        }
+
+        function selectSemester(sem) {
+            currentSemester = sem;
+            document.getElementById('selectedSemesterTitle').textContent = `${currentBranch} — ${semesterLabel(sem)} — Requests`;
+            renderRequests();
+            switchReqView('studentList');
+        }
+
+        function goBackToSemesters() { switchReqView('semesters'); }
+
+        // ── Render Requests Table (filtered by branch + semester) ───
+        function renderRequests() {
+            const tbody = document.getElementById('requestsTableBody');
+            tbody.innerHTML = '';
+            const studentsWithRequests = dashboardData.students.filter(s => s.branch === currentBranch && s.semester === currentSemester && s.request_id);
+
+            if (studentsWithRequests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">No requests found.</td></tr>';
+                return;
+            }
+
+            studentsWithRequests.forEach(s => {
+                const initial = s.name.charAt(0);
+                let badgeClass = 'badge-pending';
+                if (s.request_status === 'Approved') badgeClass = 'badge-approved';
+                else if (s.request_status === 'Rejected') badgeClass = 'badge-rejected';
+
+                const noteDisabled = s.request_status !== 'Pending' ? 'disabled' : '';
+                let actions = '';
+                if (s.request_status === 'Pending') {
+                    actions = `
+                        <div class="action-btn-group">
+                            <button class="btn btn-success btn-sm" title="Approve" onclick="updateRequest(${s.request_id}, 'Approved', '${s.roll_no}')">
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" title="Reject" onclick="updateRequest(${s.request_id}, 'Rejected', '${s.roll_no}')">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>`;
+                } else {
+                    actions = '<span class="text-light"><i class="fa-solid fa-lock"></i> Locked</span>';
+                }
+
+                tbody.innerHTML += `<tr>
+                    <td class="clickable-cell">
+                        <span class="student-link" onclick="showStudentProfile('${s.roll_no}')">
+                            <div class="avatar-sm">${initial}</div> ${s.name}
+                        </span>
+                    </td>
+                    <td>${s.roll_no}</td>
+                    <td>${s.branch} / Sem ${s.semester}</td>
+                    <td><span class="badge ${badgeClass}">${s.request_status}</span></td>
+                    <td><input type="text" class="form-control form-control-sm grid-note-input"
+                        id="note-${s.request_id}" placeholder="Add note..." value="${s.request_note || ''}" ${noteDisabled}></td>
+                    <td>${actions}</td>
+                </tr>`;
+            });
+        }
+
+        // ── Update Request ──────────────────────────────────────
+        async function updateRequest(requestId, newStatus, rollNo) {
+            const noteInput = document.getElementById(`note-${requestId}`);
+            const note = noteInput ? noteInput.value.trim() : '';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/faculty/update-request/${requestId}`, {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({ status: newStatus, note: note || null }),
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.detail || 'Update failed');
+                }
+                showToast(`Request ${newStatus.toLowerCase()} successfully`, newStatus === 'Approved' ? 'success' : 'error');
+                await fetchDashboard();
+                renderRequests();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        // ── Show Student Profile ────────────────────────────────
+        function showStudentProfile(rollNo) {
+            switchReqView('profile');
+
+            const student = dashboardData.students.find(s => s.roll_no === rollNo);
+            if (!student) { showToast('Student not found', 'error'); return; }
+
+            document.getElementById('profileAvatar').textContent = student.name.charAt(0);
+            document.getElementById('profileName').textContent = student.name;
+            document.getElementById('profileSubtitle').innerHTML =
+                `<i class="fa-solid fa-id-card"></i> ${student.roll_no} | ${student.branch} — Sem ${student.semester}`;
+
+            const detailsGrid = document.getElementById('profileDetailsGrid');
+            const theoryColor = student.theory_attendance >= 75 ? '#10b981' : (student.theory_attendance >= 60 ? '#f59e0b' : '#ef4444');
+            const practicalColor = student.practical_attendance >= 75 ? '#10b981' : (student.practical_attendance >= 60 ? '#f59e0b' : '#ef4444');
+            detailsGrid.innerHTML = `
+                <div style="display:flex; justify-content:space-around; align-items:center; grid-column: span 2; padding: 10px 0 20px;">
+                    <div class="insight-stat-card" style="border:none; padding:0;">
+                        <div class="progress-circle" style="width:80px; height:80px;">
+                            <svg viewBox="0 0 36 36">
+                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="circle" stroke="${theoryColor}" stroke-dasharray="${student.theory_attendance}, 100"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <div class="percentage" style="font-size:0.85rem;">${student.theory_attendance}%</div>
+                        </div>
+                        <p style="font-size:0.8rem; color:var(--text-light); font-weight:500; margin-top:6px;">Theory Attendance</p>
+                    </div>
+                    <div class="insight-stat-card" style="border:none; padding:0;">
+                        <div class="progress-circle" style="width:80px; height:80px;">
+                            <svg viewBox="0 0 36 36">
+                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="circle" stroke="${practicalColor}" stroke-dasharray="${student.practical_attendance}, 100"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <div class="percentage" style="font-size:0.85rem;">${student.practical_attendance}%</div>
+                        </div>
+                        <p style="font-size:0.8rem; color:var(--text-light); font-weight:500; margin-top:6px;">Practical Attendance</p>
+                    </div>
+                </div>
+                <div class="detail-row"><span class="label">Branch:</span><span class="value">${student.branch}</span></div>
+                <div class="detail-row"><span class="label">Semester:</span><span class="value">${student.semester}</span></div>
+                <div class="detail-row"><span class="label">NCC:</span><span class="value">${student.ncc ? 'Yes' : 'No'}</span></div>
+                <div class="detail-row"><span class="label">Student Status:</span>
+                    <span class="value ${student.student_status === 'Approved' ? 'text-green' : 'text-red'}">${student.student_status}</span></div>
+            `;
+
+            const timeline = document.getElementById('profileTimeline');
+            if (student.request_id) {
+                let iconClass = 'pending', icon = 'fa-hourglass-half';
+                if (student.request_status === 'Approved') { iconClass = 'success'; icon = 'fa-check'; }
+                else if (student.request_status === 'Rejected') { iconClass = 'rejected'; icon = 'fa-xmark'; }
+                timeline.innerHTML = `
+                    <div class="timeline-item">
+                        <div class="timeline-icon ${iconClass}"><i class="fa-solid ${icon}"></i></div>
+                        <div class="timeline-content">
+                            <h4>Clearance Request — ${student.request_status}</h4>
+                            ${student.request_note ? `<p style="margin-top:4px; padding:6px 10px; background:#f8fafc; border-left:3px solid var(--primary-color); border-radius:4px; font-size:0.85rem;"><strong>ANO Note:</strong> ${student.request_note}</p>` : '<p>No notes added.</p>'}
+                        </div>
+                    </div>`;
+            } else {
+                timeline.innerHTML = '<div class="no-data">No requests found for this student.</div>';
+            }
+        }
+
+        document.getElementById('backToRequests').addEventListener('click', () => {
+            switchReqView('studentList');
+        });
+
+        // ── Render Students Directory ───────────────────────────
+        function renderStudentDirectory() {
+            const tbody = document.getElementById('studentDirectoryBody');
+            tbody.innerHTML = '';
+
+            if (dashboardData.students.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="no-data">No students assigned.</td></tr>';
+                return;
+            }
+
+            dashboardData.students.forEach(s => {
+                const initial = s.name.charAt(0);
+                const reqStatus = s.request_status || 'N/A';
+                let badgeClass = '';
+                if (reqStatus === 'Approved') badgeClass = 'badge-approved';
+                else if (reqStatus === 'Pending') badgeClass = 'badge-pending';
+                else if (reqStatus === 'Rejected') badgeClass = 'badge-rejected';
+
+                tbody.innerHTML += `<tr>
+                    <td class="clickable-cell">
+                        <span class="student-link" onclick="showSection('requests'); setTimeout(() => { selectBranch('${s.branch}'); setTimeout(() => { selectSemester(${s.semester}); setTimeout(() => showStudentProfile('${s.roll_no}'), 100); }, 100); }, 100);">
+                            <div class="avatar-sm">${initial}</div> ${s.name}
+                        </span>
+                    </td>
+                    <td>${s.roll_no}</td>
+                    <td>${s.branch}</td>
+                    <td>${s.semester}</td>
+                    <td><span class="${s.theory_attendance < 75 ? 'text-red' : 'text-green'}" style="font-weight:600;">${s.theory_attendance}%</span></td>
+                    <td><span class="${s.practical_attendance < 75 ? 'text-red' : 'text-green'}" style="font-weight:600;">${s.practical_attendance}%</span></td>
+                    <td>${badgeClass ? `<span class="badge ${badgeClass}">${reqStatus}</span>` : reqStatus}</td>
+                    <td><button class="btn btn-outline btn-sm" onclick="showSection('requests'); setTimeout(() => { selectBranch('${s.branch}'); setTimeout(() => { selectSemester(${s.semester}); setTimeout(() => showStudentProfile('${s.roll_no}'), 100); }, 100); }, 100);">View</button></td>
+                </tr>`;
+            });
+        }
+
+        // ── Update Dashboard Counts ─────────────────────────────
+        function updateDashboardCounts() {
+            const all = dashboardData.students;
+            const withReq = all.filter(s => s.request_id);
+            const pending = withReq.filter(s => s.request_status === 'Pending').length;
+            const approved = withReq.filter(s => s.request_status === 'Approved').length;
+            const rejected = withReq.filter(s => s.request_status === 'Rejected').length;
+            const lowAtt = all.filter(s => s.theory_attendance < 75 || s.practical_attendance < 75).length;
+            const branches = new Set(all.map(s => s.branch)).size;
+
+            const avgTheory = all.length ? Math.round(all.reduce((sum, s) => sum + s.theory_attendance, 0) / all.length) : 0;
+            const avgPractical = all.length ? Math.round(all.reduce((sum, s) => sum + s.practical_attendance, 0) / all.length) : 0;
+
+            document.getElementById('statStudents').textContent = all.length;
+            document.getElementById('statPending').textContent = pending;
+            document.getElementById('statApproved').textContent = approved;
+            document.getElementById('statLowAtt').textContent = lowAtt;
+            document.getElementById('reqInsightPending').textContent = pending;
+            document.getElementById('reqInsightApproved').textContent = approved;
+            document.getElementById('reqInsightRejected').textContent = rejected;
+            document.getElementById('insightNCC').textContent = all.length;
+            document.getElementById('insightBranches').textContent = branches;
+            document.getElementById('insightCleared').textContent = approved;
+            document.getElementById('insightPendingCount').textContent = pending;
+
+            document.getElementById('insightTheoryPct').textContent = avgTheory + '%';
+            document.getElementById('insightTheoryProgress').setAttribute('stroke-dasharray', `${avgTheory}, 100`);
+            document.getElementById('insightPracticalPct').textContent = avgPractical + '%';
+            document.getElementById('insightPracticalProgress').setAttribute('stroke-dasharray', `${avgPractical}, 100`);
+        }
+
+        // ── Logout ──────────────────────────────────────────────
+        function doLogout(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                window.location.href = '/';
+            }
+        }
+        document.getElementById('sidebarLogout').addEventListener('click', doLogout);
+        document.getElementById('headerLogout').addEventListener('click', doLogout);
+
+        // ── Initialize ─────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', fetchDashboard);
+    </script>
+</body>
+</html>

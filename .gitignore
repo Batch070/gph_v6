@@ -1,0 +1,10 @@
+.env
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+database_backup.sql
+scratch/
+*.xlsx
+.vscode/
+node_modules/
