@@ -10,6 +10,7 @@ from app.schemas.student import (
     StudentDashboard,
     ClearanceRequestResponse,
     RazorpayOrderResponse,
+    PaymentVerificationRequest,
 )
 from app.services import student_service
 from app.utils.deps import require_role
@@ -50,3 +51,12 @@ def get_receipt(
 ):
     """Generate and return a printable HTML payment receipt."""
     return student_service.generate_receipt(user.sub, db)
+
+
+@router.post("/api/student/verify-payment")
+def verify_payment(
+    data: PaymentVerificationRequest,
+    user: TokenData = _student_only,
+    db: Session = Depends(get_db),
+):
+    return student_service.verify_payment(user.sub, data, db)

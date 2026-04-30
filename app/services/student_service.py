@@ -18,6 +18,7 @@ from app.schemas.student import (
     ApprovalEntry,
     ClearanceRequestResponse,
     RazorpayOrderResponse,
+    PaymentVerificationRequest,
 )
 import razorpay
 from app.config import settings
@@ -481,3 +482,48 @@ def generate_receipt(roll_no: str, db: Session) -> HTMLResponse:
 </html>
 """
     return HTMLResponse(content=html)
+
+
+def verify_payment(roll_no: str, data: PaymentVerificationRequest, db: Session):
+    """Verify Razorpay payment signature and update database."""
+    student = db.query(Student).filter(Student.roll_no == roll_no).first()
+    if not student:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Student not found")
+
+    if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Razorpay not configured")
+
+    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+    # Verify signature
+    params_dict = {
+        'razorpay_order_id': data.razorpay_order_id,
+        'razorpay_payment_id': data.razorpay_payment_id,
+        'razorpay_signature': data.razorpay_signature
+    }
+
+    try:
+        client.utility.verify_payment_signature(params_dict)
+    except razorpay.errors.SignatureVerificationError:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid payment signature")
+
+    # Payment verified successfully
+    fine = (
+        db.query(Fine)
+        .filter(Fine.roll_no == roll_no, Fine.semester == student.semester)
+        .first()
+    )
+    if not fine:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No fine record found")
+
+    # Update fine status
+    fine.status = "Paid"
+    fine.payment_date = datetime.now(timezone.utc)
+    fine.transaction_id = data.razorpay_payment_id
+
+    # Update student status to Cleared
+    student.status = "Cleared"
+
+    db.commit()
+
+    return {"message": "Payment verified successfully", "transaction_id": data.razorpay_payment_id}

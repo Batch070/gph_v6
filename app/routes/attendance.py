@@ -40,7 +40,7 @@ class ManualAttendanceRequest(BaseModel):
 
 
 @router.post("/api/attendance/upload")
-def upload_register_image(
+async def upload_register_image(
     semester: int = Query(...),
     subject_name: str = Query(...),
     group_type: str = Query(...),
@@ -55,7 +55,7 @@ def upload_register_image(
     if not file.content_type.startswith("image/"):
         return {"error": "File provided is not an image."}
 
-    return attendance_service.process_register_image(
+    return await attendance_service.process_register_image(
         file, semester, subject_name, group_type, total_classes, int(user.sub), db
     )
 

@@ -681,17 +681,35 @@
                     name: "GPH Fine Payment",
                     description: "Semester Fine",
                     order_id: orderData.order_id,
-                    handler: function (response) {
-                        // Success callback. Real verification happens via webhook.
-                        showToast('Payment successful! Processing receipt...', 'success');
+                    handler: async function (response) {
+                        showToast('Payment successful! Verifying...', 'success');
                         
-                        // Show receipt button immediately (optimistic UI)
-                        payFineBtn.disabled = true;
-                        payFineBtn.textContent = 'Fine Paid \u2713';
-                        payFineBtn.classList.add('btn-paid');
-                        downloadReceiptBtn.style.display = 'inline-flex';
-                        
-                        setTimeout(() => loadDashboard(), 2000);
+                        try {
+                            const vRes = await fetch(`${API_BASE}/api/student/verify-payment`, {
+                                method: 'POST',
+                                headers: authHeaders,
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature
+                                })
+                            });
+
+                            if (vRes.ok) {
+                                showToast('Payment verified! You can now download your receipt.', 'success');
+                                payFineBtn.disabled = true;
+                                payFineBtn.textContent = 'Fine Paid \u2713';
+                                payFineBtn.classList.add('btn-paid');
+                                downloadReceiptBtn.style.display = 'inline-flex';
+                                setTimeout(() => loadDashboard(), 1500);
+                            } else {
+                                const vData = await vRes.json();
+                                showToast(vData.detail || 'Verification failed. Please contact support.', 'error');
+                            }
+                        } catch (err) {
+                            console.error('Verification error:', err);
+                            showToast('Error verifying payment. Please refresh.', 'error');
+                        }
                     },
                     prefill: {
                         name: headerName.textContent,

@@ -18,7 +18,7 @@ from app.services import attendance_ai_service
 
 
 # ── AI Register Processing ────────────────────────────────────
-def process_register_image(
+async def process_register_image(
     file: UploadFile,
     semester: int,
     subject_name: str,
@@ -37,7 +37,7 @@ def process_register_image(
     if not faculty:
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="Faculty not found")
 
-    image_bytes = file.file.read()
+    image_bytes = await file.read()
     
     # Check for duplicate subject upload
     existing = (
@@ -59,7 +59,7 @@ def process_register_image(
         ).delete(synchronize_session=False)
         db.flush()
 
-    extracted_data = attendance_ai_service.extract_attendance_from_image(image_bytes, total_classes)
+    extracted_data = await attendance_ai_service.extract_attendance_from_image(image_bytes, total_classes)
 
     db_students = (
         db.query(Student)

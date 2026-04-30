@@ -616,6 +616,18 @@
         </div>
     </div>
 
+    <div id="aiProgressModal" class="ai-modal-overlay">
+        <div class="ai-modal-card">
+            <div class="ai-pulse"><i class="fa-solid fa-brain"></i></div>
+            <h2>Processing Attendance AI</h2>
+            <p style="color:#64748b; font-size:0.9rem;">Analysing register image with NVIDIA Nemotron AI</p>
+            <div class="ai-steps" id="aiStepList">
+                <!-- Filled by JS -->
+            </div>
+            <p style="font-size:0.8rem; color:#94a3b8;">Please don't close this tab...</p>
+        </div>
+    </div>
+
     <script>
         // ── Config ──────────────────────────────────────────────
         const API_BASE = '';
@@ -1879,17 +1891,6 @@
         // ── Boot ────────────────────────────────────────────────
         loadDashboard();
     </script>
-    <div id="aiProgressModal" class="ai-modal-overlay">
-        <div class="ai-modal-card">
-            <div class="ai-pulse"><i class="fa-solid fa-brain"></i></div>
-            <h2>Processing Attendance AI</h2>
-            <p style="color:#64748b; font-size:0.9rem;">Analysing register image with Gemini 2.0 Flash</p>
-            <div class="ai-steps" id="aiStepList">
-                <!-- Filled by JS -->
-            </div>
-            <p style="font-size:0.8rem; color:#94a3b8;">Please don't close this tab...</p>
-        </div>
-    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>
