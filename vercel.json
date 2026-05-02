@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/index.py",
+      "src": "index.py",
       "use": "@vercel/python"
     },
     {
@@ -17,9 +17,10 @@
     },
     {
       "source": "/(.*)",
-      "destination": "api/index.py"
+      "destination": "index.py"
     }
   ],
+
   "env": {
     "PYTHON_VERSION": "3.9"
   }
