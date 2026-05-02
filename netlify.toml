@@ -1,9 +1,10 @@
 [build]
   publish = "frontend"
-  functions = "functions"
+  functions = "netlify/functions"
 
 [functions]
   node_bundler = "esbuild"
+  included_files = ["app/**", "requirements.txt"]
 
 [build.environment]
   PYTHON_VERSION = "3.9"
