@@ -6,7 +6,6 @@ from app.database import Base
 
 class Subject(Base):
     __tablename__ = "subjects"
-    __table_args__ = {"mysql_engine": "InnoDB"}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     semester = Column(Integer, nullable=False, index=True)

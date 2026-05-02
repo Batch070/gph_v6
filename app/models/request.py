@@ -7,7 +7,6 @@ from app.database import Base
 
 class Request(Base):
     __tablename__ = "requests"
-    __table_args__ = {"mysql_engine": "InnoDB"}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     roll_no = Column(

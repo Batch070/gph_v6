@@ -7,7 +7,6 @@ from app.database import Base
 
 class Student(Base):
     __tablename__ = "students"
-    __table_args__ = {"mysql_engine": "InnoDB"}
 
     roll_no = Column(String(50), primary_key=True, index=True)
     name = Column(String(100), nullable=False)

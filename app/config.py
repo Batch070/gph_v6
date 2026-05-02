@@ -9,14 +9,14 @@ from pydantic import field_validator
 
 class Settings(BaseSettings):
     # ── Database ──────────────────────────────────────────────
-    # Default to 'db' for docker-compose, but overrideable via .env
-    DATABASE_URL: str = "mysql+pymysql://root:12345678@db:3306/mark1_db"
+    # Default to Postgres
+    DATABASE_URL: str = "postgresql://mark1_admin:Mark1_Supabase_Secure_2026!@db.aujnucxqcymtwxxlamvn.supabase.co:5432/postgres"
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
     def fix_database_url(cls, v):
-        if isinstance(v, str) and v.startswith("mysql://"):
-            return v.replace("mysql://", "mysql+pymysql://", 1)
+        if isinstance(v, str) and v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql://", 1)
         return v
 
 

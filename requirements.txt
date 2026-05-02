@@ -20,3 +20,6 @@ httpx
 razorpay
 bcrypt
 email-validator
+cachetools
+psycopg2-binary
+mangum

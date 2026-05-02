@@ -13,6 +13,14 @@ from app.models.student import Student
 from app.models.branch import Branch
 from app.models.faculty import Faculty
 from app.schemas.fine import FineUploadResponse
+import time
+
+# Simple cache for dashboards
+CACHE_TTL = 300
+_overview_cache = {"data": None, "timestamp": 0}
+_branch_data_cache = {}
+_attendance_cache = {"data": None, "timestamp": 0}
+_db_insights_cache = {"data": None, "timestamp": 0}
 
 
 def _parse_pdf_to_dataframe(file_bytes: bytes) -> pd.DataFrame:
@@ -234,6 +242,10 @@ def upload_fines(file: UploadFile, db: Session) -> FineUploadResponse:
     )
 
 def get_overview(db: Session):
+    global _overview_cache
+    if time.time() - _overview_cache["timestamp"] < CACHE_TTL and _overview_cache["data"]:
+        return _overview_cache["data"]
+
     from sqlalchemy import func
     from app.models.fine import Fine
     from app.models.student import Student
@@ -245,15 +257,24 @@ def get_overview(db: Session):
     total_semesters = db.query(func.count(func.distinct(Student.semester))).scalar() or 0
     pending_requests = db.query(func.count(ClearanceRequest.id)).filter(ClearanceRequest.status == "Pending").scalar() or 0
     
-    return {
+    data = {
         "total_fine_collected": float(total_fines),
         "total_students": total_students,
         "total_branches": total_branches,
         "total_semesters": total_semesters,
         "pending_requests": pending_requests
     }
+    _overview_cache = {"data": data, "timestamp": time.time()}
+    return data
 
 def get_branch_data(department: str, semester: str, db: Session):
+    global _branch_data_cache
+    cache_key = f"{department}_{semester}"
+    if cache_key in _branch_data_cache:
+        cached_entry = _branch_data_cache[cache_key]
+        if time.time() - cached_entry["timestamp"] < CACHE_TTL:
+            return cached_entry["data"]
+
     from sqlalchemy import select, func, or_
     from app.models.fine import Fine
     from app.models.student import Student
@@ -305,7 +326,9 @@ def get_branch_data(department: str, semester: str, db: Session):
             "defaulters": defaulters,
             "is_active": is_active if 'is_active' in locals() else False
         })
-    return {"data": results}
+    data = {"data": results}
+    _branch_data_cache[cache_key] = {"data": data, "timestamp": time.time()}
+    return data
 
 def get_global_students(search: str, db: Session):
     from sqlalchemy import or_, func
@@ -338,6 +361,10 @@ def get_global_students(search: str, db: Session):
     return {"students": results}
 
 def get_attendance_insights(db: Session):
+    global _attendance_cache
+    if time.time() - _attendance_cache["timestamp"] < CACHE_TTL and _attendance_cache["data"]:
+        return _attendance_cache["data"]
+
     from sqlalchemy import func
     from app.models.student import Student
     
@@ -358,7 +385,9 @@ def get_attendance_insights(db: Session):
             "practical_avg": round(float(avg_p or 0), 1),
             "student_count": count
         })
-    return {"insights": results}
+    data = {"insights": results}
+    _attendance_cache = {"data": data, "timestamp": time.time()}
+    return data
 
 def get_all_faculty(db: Session):
     from app.models.faculty import Faculty
@@ -448,6 +477,10 @@ def reset_system(db: Session):
     return {"message": "System data has been reset"}
 
 def get_db_insights(db: Session):
+    global _db_insights_cache
+    if time.time() - _db_insights_cache["timestamp"] < CACHE_TTL and _db_insights_cache["data"]:
+        return _db_insights_cache["data"]
+
     from sqlalchemy import func, Integer
     from app.models.student import Student
     from app.models.faculty import Faculty
@@ -477,13 +510,15 @@ def get_db_insights(db: Session):
     ).first()
     
     overall_stats = {
-        "total_ncc": int(overall.total_ncc or 0),
-        "total_hosteller": int(overall.total_hosteller or 0),
-        "total_pending": int(overall.total_pending or 0),
-        "total_accepted": int(overall.total_accepted or 0)
+        "total_ncc": int(overall.total_ncc or 0) if overall and hasattr(overall, 'total_ncc') else 0,
+        "total_hosteller": int(overall.total_hosteller or 0) if overall and hasattr(overall, 'total_hosteller') else 0,
+        "total_pending": int(overall.total_pending or 0) if overall and hasattr(overall, 'total_pending') else 0,
+        "total_accepted": int(overall.total_accepted or 0) if overall and hasattr(overall, 'total_accepted') else 0
     }
 
-    return {"overall_stats": overall_stats, "insights": results}
+    data = {"overall_stats": overall_stats, "insights": results}
+    _db_insights_cache = {"data": data, "timestamp": time.time()}
+    return data
 def get_branches(db: Session):
     from app.models.faculty import Faculty
     branches = db.query(Branch).all()

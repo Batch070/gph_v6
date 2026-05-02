@@ -1,14 +1,29 @@
 from sqlalchemy.orm import Session
 from app.models.subject import Subject
 from typing import List, Optional
+import time
+
+CACHE_TTL = 300
+_subject_cache = {}
 
 def get_subjects(db: Session, semester: Optional[int] = None, branch: Optional[str] = None) -> List[Subject]:
+    global _subject_cache
+    cache_key = f"{semester}_{branch}"
+    if cache_key in _subject_cache:
+        cached_entry = _subject_cache[cache_key]
+        if time.time() - cached_entry["timestamp"] < CACHE_TTL:
+            # We can return cached objects because they have no lazy-loaded relationships
+            return cached_entry["data"]
+
     query = db.query(Subject)
     if semester:
         query = query.filter(Subject.semester == semester)
     if branch:
-        query = query.filter(Subject.branch == branch)
-    return query.all()
+        from sqlalchemy import or_
+        query = query.filter(or_(Subject.branch == branch, Subject.branch == None))
+    results = query.all()
+    _subject_cache[cache_key] = {"data": results, "timestamp": time.time()}
+    return results
 
 def create_subject(db: Session, semester: int, name: str, group_type: str, subject_code: Optional[str] = None, label: Optional[str] = None, branch: Optional[str] = "Information Technology"):
     if not label:
@@ -82,6 +97,6 @@ def populate_initial_subjects(db: Session):
             group_type=gtype, 
             subject_code=code, 
             label=label,
-            branch="Information Technology"
+            branch=None
         ))
     db.commit()

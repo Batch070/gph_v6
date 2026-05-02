@@ -1,0 +1,22 @@
+[build]
+  publish = "frontend"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+[build.environment]
+  PYTHON_VERSION = "3.9"
+
+# Redirect all API traffic to the FastAPI serverless function
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+# Catch-all redirect for Single Page Apps (SPA) / routing if applicable
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

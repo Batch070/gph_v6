@@ -6,7 +6,6 @@ from app.database import Base
 
 class Fine(Base):
     __tablename__ = "fines"
-    __table_args__ = {"mysql_engine": "InnoDB"}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     roll_no = Column(

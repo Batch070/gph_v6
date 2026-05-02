@@ -6,7 +6,6 @@ from app.database import Base
 
 class Faculty(Base):
     __tablename__ = "faculty"
-    __table_args__ = {"mysql_engine": "InnoDB"}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=False)
