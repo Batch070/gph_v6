@@ -38,18 +38,25 @@ FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     # Startup: create tables if they don't exist
-    Base.metadata.create_all(bind=engine)
-    
-    # Populate initial subjects
-    from app.database import SessionLocal
-    from app.services import subject_service
-    db = SessionLocal()
     try:
-        subject_service.populate_initial_subjects(db)
-    finally:
-        db.close()
+        print("🚀 [Startup] Initializing database...")
+        Base.metadata.create_all(bind=engine)
+        
+        # Populate initial subjects
+        from app.database import SessionLocal
+        from app.services import subject_service
+        db = SessionLocal()
+        try:
+            subject_service.populate_initial_subjects(db)
+            print("✅ [Startup] Database initialized successfully.")
+        finally:
+            db.close()
+    except Exception as e:
+        print(f"⚠️ [Startup Warning] Database initialization failed: {e}")
+        # We don't raise here to allow the app to start and show a proper error via API
     
     yield
+
 
 
 app = FastAPI(
