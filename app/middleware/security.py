@@ -22,7 +22,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "font-src 'self' https://fonts.gstatic.com https://ka-f.fontawesome.com https://ka-p.fontawesome.com; "
             "img-src 'self' data: https://checkout.razorpay.com https://badges.razorpay.com https://img.freepik.com https://images.unsplash.com; "
             "frame-src https://api.razorpay.com; "
-            "connect-src 'self' https://api.razorpay.com https://ka-f.fontawesome.com https://ka-p.fontawesome.com https://cdnjs.cloudflare.com wss:; "
+            "connect-src 'self' https://api.razorpay.com https://aujnucxqcymtwxxlamvn.supabase.co https://ka-f.fontawesome.com https://ka-p.fontawesome.com https://cdnjs.cloudflare.com wss:; "
             "worker-src 'self' blob:;"
         )
         
