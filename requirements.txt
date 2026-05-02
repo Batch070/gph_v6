@@ -16,6 +16,7 @@ pandas
 pdfplumber
 openpyxl
 requests
+httpx
 razorpay
 bcrypt
 email-validator
