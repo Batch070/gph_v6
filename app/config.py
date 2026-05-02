@@ -12,6 +12,14 @@ class Settings(BaseSettings):
     # Default to 'db' for docker-compose, but overrideable via .env
     DATABASE_URL: str = "mysql+pymysql://root:12345678@db:3306/mark1_db"
 
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def fix_database_url(cls, v):
+        if isinstance(v, str) and v.startswith("mysql://"):
+            return v.replace("mysql://", "mysql+pymysql://", 1)
+        return v
+
+
     # ── JWT ───────────────────────────────────────────────────
     JWT_SECRET_KEY: str = "CHANGE_ME_TO_A_RANDOM_SECRET_IN_PRODUCTION"
     JWT_ALGORITHM: str = "HS256"
