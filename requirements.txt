@@ -1,5 +1,6 @@
 fastapi
 uvicorn
+gunicorn
 sqlalchemy
 pymysql
 cryptography
@@ -16,6 +17,5 @@ pdfplumber
 openpyxl
 requests
 razorpay
-python-multipart
 bcrypt
 email-validator
