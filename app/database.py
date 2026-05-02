@@ -12,7 +12,10 @@ engine = create_engine(
     pool_pre_ping=True,
     pool_size=10,
     max_overflow=20,
+    connect_args={"ssl": {}} if "tidbcloud.com" in settings.DATABASE_URL else {}
 )
+
+
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
