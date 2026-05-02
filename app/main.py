@@ -107,61 +107,47 @@ def health_check():
     return {"status": "ok", "message": "App is running successfully!"}
 
 
-@app.get("/", response_class=HTMLResponse, tags=["Frontend"])
+from fastapi.responses import HTMLResponse, FileResponse
+
+# ... (middleware and routers)
+
+@app.get("/", tags=["Frontend"])
 def serve_login_page():
-    index_file = FRONTEND_DIR / "index.html"
-    return HTMLResponse(content=index_file.read_text(encoding="utf-8"))
+    return FileResponse(FRONTEND_DIR / "index.html")
 
-
-@app.get("/admin-dashboard", response_class=HTMLResponse, tags=["Frontend"])
+@app.get("/admin-dashboard", tags=["Frontend"])
 def serve_admin_dashboard():
-    admin_file = FRONTEND_DIR / "admin-dashboard.html"
-    return HTMLResponse(content=admin_file.read_text(encoding="utf-8"))
+    return FileResponse(FRONTEND_DIR / "admin-dashboard.html")
 
-
-@app.get("/hod-dashboard", response_class=HTMLResponse, tags=["Frontend"])
+@app.get("/hod-dashboard", tags=["Frontend"])
 def serve_hod_dashboard():
-    hod_file = FRONTEND_DIR / "hod-dashboard.html"
-    return HTMLResponse(content=hod_file.read_text(encoding="utf-8"))
+    return FileResponse(FRONTEND_DIR / "hod-dashboard.html")
 
-
-@app.get("/incharge-dashboard", response_class=HTMLResponse, tags=["Frontend"])
+@app.get("/incharge-dashboard", tags=["Frontend"])
 def serve_incharge_dashboard():
-    incharge_file = FRONTEND_DIR / "incharge-dashboard.html"
-    return HTMLResponse(content=incharge_file.read_text(encoding="utf-8"))
+    return FileResponse(FRONTEND_DIR / "incharge-dashboard.html")
 
-
-@app.get("/student-dashboard", response_class=HTMLResponse, tags=["Frontend"])
+@app.get("/student-dashboard", tags=["Frontend"])
 def serve_student_dashboard():
-    student_file = FRONTEND_DIR / "student-dashboard.html"
-    return HTMLResponse(content=student_file.read_text(encoding="utf-8"))
+    return FileResponse(FRONTEND_DIR / "student-dashboard.html")
 
-
-@app.get("/pti-dashboard", response_class=HTMLResponse, tags=["Frontend"])
+@app.get("/pti-dashboard", tags=["Frontend"])
 def serve_pti_dashboard():
-    pti_file = FRONTEND_DIR / "pti-dashboard.html"
-    return HTMLResponse(content=pti_file.read_text(encoding="utf-8"))
+    return FileResponse(FRONTEND_DIR / "pti-dashboard.html")
 
-
-@app.get("/librarian-dashboard", response_class=HTMLResponse, tags=["Frontend"])
+@app.get("/librarian-dashboard", tags=["Frontend"])
 def serve_librarian_dashboard():
-    lib_file = FRONTEND_DIR / "librarian-dashboard.html"
-    return HTMLResponse(content=lib_file.read_text(encoding="utf-8"))
+    return FileResponse(FRONTEND_DIR / "librarian-dashboard.html")
 
-
-@app.get("/ano-dashboard", response_class=HTMLResponse, tags=["Frontend"])
+@app.get("/ano-dashboard", tags=["Frontend"])
 def serve_ano_dashboard():
-    ano_file = FRONTEND_DIR / "ano-dashboard.html"
-    return HTMLResponse(content=ano_file.read_text(encoding="utf-8"))
+    return FileResponse(FRONTEND_DIR / "ano-dashboard.html")
 
-
-@app.get("/canteen-dashboard", response_class=HTMLResponse, tags=["Frontend"])
+@app.get("/canteen-dashboard", tags=["Frontend"])
 def serve_canteen_dashboard():
-    canteen_file = FRONTEND_DIR / "canteen-dashboard.html"
-    return HTMLResponse(content=canteen_file.read_text(encoding="utf-8"))
+    return FileResponse(FRONTEND_DIR / "canteen-dashboard.html")
 
-
-@app.get("/hostel-dashboard", response_class=HTMLResponse, tags=["Frontend"])
+@app.get("/hostel-dashboard", tags=["Frontend"])
 def serve_hostel_dashboard():
-    hostel_file = FRONTEND_DIR / "hostel-dashboard.html"
-    return HTMLResponse(content=hostel_file.read_text(encoding="utf-8"))
+    return FileResponse(FRONTEND_DIR / "hostel-dashboard.html")
+
