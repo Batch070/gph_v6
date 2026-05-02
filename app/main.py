@@ -102,6 +102,11 @@ app.include_router(subjects.router)
 app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
 
 
+@app.get("/health", tags=["Health"])
+def health_check():
+    return {"status": "ok", "message": "App is running successfully!"}
+
+
 @app.get("/", response_class=HTMLResponse, tags=["Frontend"])
 def serve_login_page():
     index_file = FRONTEND_DIR / "index.html"
