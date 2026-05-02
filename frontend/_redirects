@@ -1,2 +1,11 @@
 /api/*  /.netlify/functions/api  200
+/student-dashboard  /student-dashboard.html  200
+/admin-dashboard    /admin-dashboard.html    200
+/hod-dashboard      /hod-dashboard.html      200
+/incharge-dashboard /incharge-dashboard.html 200
+/ano-dashboard      /ano-dashboard.html      200
+/hostel-dashboard   /hostel-dashboard.html   200
+/canteen-dashboard  /canteen-dashboard.html  200
+/librarian-dashboard /librarian-dashboard.html 200
+/pti-dashboard      /pti-dashboard.html      200
 /*      /index.html              200
