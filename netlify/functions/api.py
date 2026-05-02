@@ -7,7 +7,17 @@ from mangum import Mangum
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(BASE_DIR))
 
-from app.main import app
-
-# Create the handler for Netlify
-handler = Mangum(app)
+try:
+    from app.main import app
+    # Create the handler for Netlify
+    handler = Mangum(app)
+except Exception as e:
+    import traceback
+    error_msg = f"Initialization Error: {str(e)}\n{traceback.format_exc()}"
+    print(error_msg)
+    
+    async def handler(event, context):
+        return {
+            "statusCode": 500,
+            "body": f"Backend Initialization Error. Check logs.\n{str(e)}"
+        }
