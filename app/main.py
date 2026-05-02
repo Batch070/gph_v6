@@ -81,7 +81,7 @@ if "*" in cors_origins:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
-    allow_credentials=True,
+    allow_credentials=False,  # Set to False when using allow_origins=["*"]
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -103,7 +103,7 @@ app.include_router(webhooks.router)
 app.include_router(subjects.router)
 
 # ── Serve Frontend Static Files ──────────────────────────────
-app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
+app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR / "static")), name="static")
 
 
 @app.get("/health", tags=["Health"])
