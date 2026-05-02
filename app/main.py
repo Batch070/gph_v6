@@ -20,9 +20,9 @@ from app.config import settings
 from app.database import engine, Base
 
 # Import models so SQLAlchemy sees them before create_all
-from app.models import student, faculty, request, fine, attendance  # noqa: F401
+from app.models import student, faculty, request, fine, attendance, subject, branch  # noqa: F401
 
-from app.routes import auth, student as student_routes, faculty as faculty_routes, hod, admin, incharge, attendance as attendance_routes, webhooks
+from app.routes import auth, student as student_routes, faculty as faculty_routes, hod, admin, incharge, attendance as attendance_routes, webhooks, subjects
 from app.middleware.rate_limit import limiter
 from app.middleware.security import SecurityHeadersMiddleware
 from app.middleware.exception_handlers import (
@@ -39,6 +39,16 @@ FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 async def lifespan(_app: FastAPI):
     # Startup: create tables if they don't exist
     Base.metadata.create_all(bind=engine)
+    
+    # Populate initial subjects
+    from app.database import SessionLocal
+    from app.services import subject_service
+    db = SessionLocal()
+    try:
+        subject_service.populate_initial_subjects(db)
+    finally:
+        db.close()
+    
     yield
 
 
@@ -79,6 +89,7 @@ app.include_router(admin.router)
 app.include_router(incharge.router)
 app.include_router(attendance_routes.router)
 app.include_router(webhooks.router)
+app.include_router(subjects.router)
 
 # ── Serve Frontend Static Files ──────────────────────────────
 app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")

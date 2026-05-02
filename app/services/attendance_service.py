@@ -454,13 +454,19 @@ def finalize_attendance(semester: int, faculty_id: int, db: Session, background_
 
         if existing_fine:
             existing_fine.amount = fine_amount
+            existing_fine.status = "Paid" if fine_amount <= 0 else "Unpaid"
+            if fine_amount <= 0:
+                existing_fine.payment_date = datetime.now()
+                existing_fine.transaction_id = "ZERO_FINE"
             fines_updated += 1
         else:
             new_fine = Fine(
                 roll_no=roll_no,
                 amount=fine_amount,
                 semester=semester,
-                status="Unpaid",
+                status="Paid" if fine_amount <= 0 else "Unpaid",
+                payment_date=datetime.now() if fine_amount <= 0 else None,
+                transaction_id="ZERO_FINE" if fine_amount <= 0 else None
             )
             db.add(new_fine)
             fines_created += 1

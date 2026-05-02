@@ -11,7 +11,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/static/font-awesome.css">
-    <link rel="stylesheet" href="/static/hod-dashboard.css?v=1.1">
+    <link rel="stylesheet" href="/static/hod-dashboard.css?v=1.2">
+    <style>
+        .active-sem-highlight {
+            border: 2px solid #1e3a8a !important;
+            box-shadow: 0 0 15px rgba(30, 58, 138, 0.2) !important;
+            transform: translateY(-5px);
+        }
+        .active-badge {
+            background: #10b981;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+    </style>
 </head>
 
 <body>
@@ -130,11 +147,11 @@
                 <div id="overview" class="dashboard-section">
                     <section class="card animated-card snapshot-card mb-2">
                         <div class="card-header">
-                            <h3><i class="fa-solid fa-chart-pie"></i> IT Department Overview</h3>
+                            <h3><i class="fa-solid fa-chart-pie"></i> <span id="overviewDeptTitle">Department</span> Overview</h3>
                         </div>
                         <div class="snapshot-grid">
                             <div class="info-item">
-                                <label>Total Students (IT Dept)</label>
+                                <label>Total Students (<span id="overviewDeptLabel">Dept</span>)</label>
                                 <div class="info-value" id="statStudents">0</div>
                             </div>
                             <div class="info-item">
@@ -209,7 +226,7 @@
                         <div class="form-container">
                             <div class="alert alert-info">
                                 <strong><i class="fa-solid fa-circle-info"></i> Note:</strong> Upload master student
-                                data for the entire IT department here. Required columns: <code>roll_no</code>,
+                                data for your entire department here. Required columns: <code>roll_no</code>,
                                 <code>name</code>, <code>semester</code>, <code>dob</code>. Optional:
                                 <code>gender</code>, <code>ncc</code>, <code>hosteller</code>,
                                 <code>academic_year</code>.
@@ -302,12 +319,15 @@
 
                     <!-- Requests List -->
                     <div id="req-list-view" class="nested-view">
-                        <div class="header-with-back mb-2">
+                        <div class="header-with-back mb-2" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
                             <label for="view-requests-dash" class="btn btn-outline btn-sm back-btn"
                                 id="backToSemesters">
                                 <i class="fa-solid fa-arrow-left"></i> Back to Semesters
                             </label>
-                            <h2 style="margin: 0;" id="listSemTitle">Department Final Approvals</h2>
+                            <h2 style="margin: 0; flex: 1; text-align: center;" id="listSemTitle">Department Final Approvals</h2>
+                            <select id="branchFilterSelect" class="form-control" style="width: auto; display: none;">
+                                <option value="all">All Branches</option>
+                            </select>
                         </div>
                         <section class="card animated-card">
                             <div class="table-responsive">
@@ -404,8 +424,8 @@
                         <div style="display: flex; flex-direction: column; gap: 15px;">
                             <div class="alert alert-danger">
                                 <strong><i class="fa-solid fa-radiation"></i> WARNING:</strong> This will permanently
-                                clear all semester fine data, requests, attendance records, and student statuses for the
-                                entire IT department!
+                                clear all semester fine data, requests, attendance records, and student statuses for your
+                                entire department!
                             </div>
                             <div style="display: flex; gap: 1rem; justify-content: flex-end;">
                                 <label for="view-overview" class="btn btn-outline"
@@ -530,8 +550,12 @@
             // Header
             document.getElementById('headerName').textContent =
                 `Welcome, ${data.faculty_name} 👋`;
-            document.getElementById('headerSubtitle').textContent =
-                `Head of Department (${data.branch})`;
+            document.getElementById('headerSubtitle').textContent = 
+                data.branch === 'First Year' ? 'HOD (First Year - All Branches)' : `HOD (${data.branch})`;
+
+            // Update dynamic branch labels
+            document.getElementById('overviewDeptTitle').textContent = data.branch;
+            document.getElementById('overviewDeptLabel').textContent = data.branch === 'First Year' ? 'FY' : data.branch;
 
             // Stats
             document.getElementById('statStudents').textContent = data.total_students;
@@ -581,13 +605,15 @@
                 const semSelect = document.getElementById('semesterSelect');
                 semSelect.innerHTML = '<option value="">-- Select Semester --</option>';
 
+                const branchPrefix = overviewData && overviewData.branch === 'First Year' ? 'FY' : 
+                                     (overviewData ? overviewData.branch.substring(0, 4).toUpperCase() : 'DEPT');
                 semesters.forEach(sem => {
                     // Approval cards
                     const card = document.createElement('div');
-                    card.className = 'semester-card';
+                    card.className = `semester-card ${sem.is_active ? 'active-sem-highlight' : ''}`;
                     card.innerHTML = `
                         <div class="sem-icon"><i class="fa-solid fa-building-columns"></i></div>
-                        <h3>IT ${semesterLabel(sem.semester)}</h3>
+                        <h3>${branchPrefix} ${semesterLabel(sem.semester)} ${sem.is_active ? '<span class="active-badge">Active</span>' : ''}</h3>
                         <p>${sem.pending_requests} Pending Requests for HOD</p>
                         <div class="card-action-hint">View Approvals <i class="fa-solid fa-arrow-right"></i></div>
                     `;
@@ -601,7 +627,7 @@
                     // Dropdown option
                     const opt = document.createElement('option');
                     opt.value = sem.semester;
-                    opt.textContent = `IT ${semesterLabel(sem.semester)}`;
+                    opt.textContent = `${branchPrefix} ${semesterLabel(sem.semester)}`;
                     semSelect.appendChild(opt);
                 });
 
@@ -613,11 +639,14 @@
             }
         }
 
-        // ── Show Student List for a Semester ───────────────────
+        let currentStudentsData = [];
+        
         async function showStudentList(semester) {
             currentSemester = semester;
+            const branchPrefix = overviewData && overviewData.branch === 'First Year' ? 'FY' : 
+                                 (overviewData ? overviewData.branch.substring(0, 4).toUpperCase() : 'DEPT');
             document.getElementById('listSemTitle').textContent =
-                `IT ${semesterLabel(semester)} — Final Approvals`;
+                `${branchPrefix} ${semesterLabel(semester)} — Final Approvals`;
 
             const tbody = document.getElementById('studentListBody');
             tbody.innerHTML = '<tr><td colspan="6" class="no-data">Loading...</td></tr>';
@@ -628,14 +657,43 @@
                 });
                 if (!res.ok) return;
 
-                const students = await res.json();
-
-                if (students.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="no-data">No students found for this semester.</td></tr>';
-                    return;
+                currentStudentsData = await res.json();
+                
+                const branchFilter = document.getElementById('branchFilterSelect');
+                if (overviewData && overviewData.branch === 'First Year') {
+                    branchFilter.style.display = 'block';
+                    const branches = [...new Set(currentStudentsData.map(s => s.branch).filter(b => b))].sort();
+                    const currentValue = branchFilter.value;
+                    branchFilter.innerHTML = '<option value="all">All Branches</option>' + branches.map(b => `<option value="${b}">${b}</option>`).join('');
+                    if (branches.includes(currentValue)) branchFilter.value = currentValue;
+                } else {
+                    branchFilter.style.display = 'none';
                 }
 
-                tbody.innerHTML = students.map(s => {
+                renderStudentTable();
+            } catch (err) {
+                console.error('Student list error:', err);
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">Failed to load data.</td></tr>';
+            }
+        }
+
+        document.getElementById('branchFilterSelect').addEventListener('change', renderStudentTable);
+
+        function renderStudentTable() {
+            const tbody = document.getElementById('studentListBody');
+            let filteredStudents = currentStudentsData;
+            
+            const branchFilter = document.getElementById('branchFilterSelect');
+            if (branchFilter.style.display !== 'none' && branchFilter.value !== 'all') {
+                filteredStudents = filteredStudents.filter(s => s.branch === branchFilter.value);
+            }
+
+            if (filteredStudents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">No students found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredStudents.map(s => {
                     const initial = s.name.charAt(0);
 
                     // Incharge status badge
@@ -688,11 +746,6 @@
                         <td>${actions}</td>
                     </tr>`;
                 }).join('');
-
-            } catch (err) {
-                console.error('Student list error:', err);
-                showToast('Failed to load students', 'error');
-            }
         }
 
         // ── Update Request (Approve / Reject) ──────────────────

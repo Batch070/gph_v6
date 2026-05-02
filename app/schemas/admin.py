@@ -82,3 +82,24 @@ class DBInsightRow(BaseModel):
 class DBInsightsResponse(BaseModel):
     overall_stats: OverallStats
     insights: List[DBInsightRow]
+
+class BranchInfoRow(BaseModel):
+    id: int
+    name: str
+    hod_name: Optional[str] = None
+    hod_username: Optional[str] = None
+
+class BranchListResponse(BaseModel):
+    branches: List[BranchInfoRow]
+
+class AdminAddBranchBody(BaseModel):
+    name: str
+    hod_name: str
+    hod_username: str
+    hod_password: str
+    hod_gender: Optional[str] = "Male"
+
+class AdminUpdateBranchHodBody(BaseModel):
+    hod_name: str
+    hod_username: str
+    hod_password: Optional[str] = None

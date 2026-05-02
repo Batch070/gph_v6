@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/static/font-awesome.css">
-    <link rel="stylesheet" href="/static/admin-dashboard.css">
+    <link rel="stylesheet" href="/static/admin-dashboard.css?v=4">
     <style>
         /* Specific Admin Additions for Charts or Layout if missing from base */
         .admin-stat-card {
@@ -35,6 +35,20 @@
             gap: 1rem;
             margin-bottom: 1.5rem;
         }
+        .active-sem-highlight {
+            background-color: #f0f7ff !important;
+            border-left: 4px solid var(--primary-color) !important;
+        }
+        .active-badge {
+            background: #10b981;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 
@@ -46,6 +60,7 @@
     <input type="radio" name="dashboard-view" id="view-faculty" hidden>
     <input type="radio" name="dashboard-view" id="view-admit-card" hidden>
     <input type="radio" name="dashboard-view" id="view-attendance" hidden>
+    <input type="radio" name="dashboard-view" id="view-branches" hidden>
     <input type="radio" name="dashboard-view" id="view-settings" hidden>
 
     <div class="container">
@@ -81,6 +96,11 @@
                     <li>
                         <label for="view-faculty" class="nav-label active-faculty">
                             <i class="fa-solid fa-chalkboard-user"></i> <span>Faculty / Incharge</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label for="view-branches" class="nav-label active-branches">
+                            <i class="fa-solid fa-code-branch"></i> <span>Manage Branches</span>
                         </label>
                     </li>
                     <li>
@@ -229,9 +249,21 @@
                     <section class="card animated-card">
                         <div class="card-header">
                             <h3><i class="fa-solid fa-user-graduate"></i> Global Student Profiles</h3>
-                            <div class="header-actions">
-                                <input type="text" id="admin-student-search" class="form-control form-control-sm"
-                                    placeholder="Search by Name or Roll No">
+                        </div>
+                        <div class="branch-filter-grid" style="margin-bottom: 1rem;">
+                            <div class="form-group">
+                                <select class="form-control" id="student-filter-dept">
+                                    <option value="all">All Departments</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <select class="form-control" id="student-filter-sem">
+                                    <option value="all">All Semesters</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="admin-student-search" class="form-control"
+                                    placeholder="Search Name or Roll No">
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -260,6 +292,26 @@
                         <div class="card-header">
                             <h3><i class="fa-solid fa-chalkboard-user"></i> Faculty & Incharge Management</h3>
                             <button class="btn btn-primary btn-sm" onclick="showAddFacultyModal()"><i class="fa-solid fa-plus"></i> Add Faculty</button>
+                        </div>
+                        <div class="branch-filter-grid" style="margin-bottom: 1rem;">
+                            <div class="form-group">
+                                <select class="form-control" id="faculty-filter-dept">
+                                    <option value="all">All Departments</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <select class="form-control" id="faculty-filter-role">
+                                    <option value="all">All Roles</option>
+                                    <option value="HOD">HOD</option>
+                                    <option value="ClassIncharge">Class Incharge</option>
+                                    <option value="PTI">PTI</option>
+                                    <option value="Librarian">Librarian</option>
+                                    <option value="Warden">Warden</option>
+                                    <option value="ANO">ANO (NCC)</option>
+                                    <option value="HostelSuperintendent_Boys">Hostel Sup. (Boys)</option>
+                                    <option value="HostelSuperintendent_Girls">Hostel Sup. (Girls)</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="table-responsive">
                             <table class="approval-table custom-table">
@@ -308,11 +360,47 @@
 
                 <!-- 6. ATTENDANCE INSIGHTS -->
                 <div id="attendance-insights" class="dashboard-section">
-                    <h2 class="section-title-transparent"><i class="fa-solid fa-chart-simple"></i> Global Attendance
-                        Analytics</h2>
+                    <section class="card animated-card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); color: white;">
+                        <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <h3 style="color: white;"><i class="fa-solid fa-chart-simple"></i> Global Attendance Analytics</h3>
+                        </div>
+                        <div class="branch-filter-grid" style="margin-top: 1rem;">
+                            <div class="form-group">
+                                <label style="color: rgba(255,255,255,0.8);">Select Branch to Analyze</label>
+                                <select class="form-control" id="attendance-filter-branch" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                                    <option value="all" style="color: black;">All Branches (Overall Averages)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </section>
                     <div class="semester-cards-grid" id="admin-attendance-grid">
                         <!-- Populated by JS -->
                     </div>
+                </div>
+
+                <!-- 8. MANAGE BRANCHES -->
+                <div id="branches" class="dashboard-section">
+                    <section class="card animated-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-code-branch"></i> Institute Branches</h3>
+                            <button class="btn btn-primary btn-sm" onclick="showAddBranchModal()"><i class="fa-solid fa-plus"></i> Add New Branch</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="approval-table custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Branch Name</th>
+                                        <th>HOD Name</th>
+                                        <th>HOD Username</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-branches-tbody">
+                                    <!-- JS Populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
                 </div>
 
                 <!-- 7. SETTINGS -->
@@ -334,7 +422,38 @@
             </main>
         </div>
     </div>
-    <script src="/static/admin-dashboard.js"></script>
-</body>
+    
+    <!-- Manage Branch Modal -->
+    <div id="manage-branch-modal" class="modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000;">
+        <div class="modal-content" style="background: white; padding: 2rem; border-radius: 12px; width: 400px; max-width: 90%;">
+            <h3 style="margin-top: 0;">Manage Branch</h3>
+            <form id="form-manage-branch">
+                <input type="hidden" id="manage-branch-name">
+                <div class="form-group">
+                    <label>Branch Name</label>
+                    <input type="text" id="manage-branch-display" class="form-control" disabled>
+                </div>
+                <div class="form-group">
+                    <label>HOD Name</label>
+                    <input type="text" id="manage-branch-hod-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>HOD Username</label>
+                    <input type="text" id="manage-branch-hod-username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>HOD Password (leave blank to keep current)</label>
+                    <input type="password" id="manage-branch-hod-password" class="form-control">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                    <button type="button" class="btn btn-outline" onclick="hideManageBranchModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/admin-dashboard.js?v=4"></script>
+</body>
 </html>

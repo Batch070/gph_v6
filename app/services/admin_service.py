@@ -4,11 +4,14 @@ import pandas as pd
 import pdfplumber
 import io
 import re
+from datetime import datetime
 from fastapi import HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.models.fine import Fine
 from app.models.student import Student
+from app.models.branch import Branch
+from app.models.faculty import Faculty
 from app.schemas.fine import FineUploadResponse
 
 
@@ -205,7 +208,9 @@ def upload_fines(file: UploadFile, db: Session) -> FineUploadResponse:
                 roll_no=roll_no,
                 amount=amount,
                 semester=semester,
-                status="Unpaid",
+                status="Paid" if amount <= 0 else "Unpaid",
+                payment_date=datetime.now() if amount <= 0 else None,
+                transaction_id="ZERO_FINE" if amount <= 0 else None
             )
             db.add(new_fine)
             inserted += 1
@@ -236,7 +241,7 @@ def get_overview(db: Session):
     
     total_fines = db.query(func.sum(Fine.amount)).filter(Fine.status == "Paid").scalar() or 0.0
     total_students = db.query(func.count(Student.roll_no)).scalar() or 0
-    total_branches = db.query(func.count(func.distinct(Student.branch))).scalar() or 0
+    total_branches = db.query(Branch).count() or 0
     total_semesters = db.query(func.count(func.distinct(Student.semester))).scalar() or 0
     pending_requests = db.query(func.count(ClearanceRequest.id)).filter(ClearanceRequest.status == "Pending").scalar() or 0
     
@@ -263,9 +268,12 @@ def get_branch_data(department: str, semester: str, db: Session):
         query = query.filter(Student.branch.ilike(f"%{department}%"))
     if semester and semester != "all":
         try:
-            query = query.filter(Student.semester == int(semester))
+            from app.utils.semester import is_semester_active
+            sem_int = int(semester)
+            query = query.filter(Student.semester == sem_int)
+            is_active = is_semester_active(sem_int)
         except ValueError:
-            pass
+            is_active = False
             
     # Convert query to list of dicts with extra lookups
     results = []
@@ -294,7 +302,8 @@ def get_branch_data(department: str, semester: str, db: Session):
             "total_students": count,
             "total_fine_generated": float(gen_fine),
             "total_fine_collected": float(coll_fine),
-            "defaulters": defaulters
+            "defaulters": defaulters,
+            "is_active": is_active if 'is_active' in locals() else False
         })
     return {"data": results}
 
@@ -475,3 +484,86 @@ def get_db_insights(db: Session):
     }
 
     return {"overall_stats": overall_stats, "insights": results}
+def get_branches(db: Session):
+    from app.models.faculty import Faculty
+    branches = db.query(Branch).all()
+    results = []
+    for b in branches:
+        hod = db.query(Faculty).filter(Faculty.role == "HOD", Faculty.branch == b.name).first()
+        results.append({
+            "id": b.id,
+            "name": b.name,
+            "hod_name": hod.name if hod else None,
+            "hod_username": hod.username if hod else None
+        })
+    return {"branches": results}
+
+def add_branch_with_hod(name, hod_name, hod_username, hod_password, hod_gender, db: Session):
+    # Check if branch exists
+    existing_branch = db.query(Branch).filter(Branch.name == name).first()
+    if existing_branch:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=f"Branch '{name}' already exists")
+    
+    # Check if HOD username exists
+    existing_faculty = db.query(Faculty).filter(Faculty.username == hod_username).first()
+    if existing_faculty:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=f"Faculty username '{hod_username}' already exists")
+    
+    # 1. Create Branch
+    new_branch = Branch(name=name)
+    db.add(new_branch)
+    
+    # 2. Create HOD
+    from app.utils.security import hash_password
+    new_hod = Faculty(
+        name=hod_name,
+        username=hod_username,
+        password=hash_password(hod_password),
+        role="HOD",
+        branch=name,
+        gender=hod_gender or "Male"  # Use provided gender
+    )
+    db.add(new_hod)
+    
+    db.commit()
+    return {"message": f"Branch '{name}' created with HOD '{hod_name}'"}
+
+from typing import Optional
+def update_branch_hod(branch_name: str, hod_name: str, hod_username: str, hod_password: Optional[str], db: Session):
+    # Check if branch exists
+    branch = db.query(Branch).filter(Branch.name == branch_name).first()
+    if not branch:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail=f"Branch '{branch_name}' not found")
+        
+    # Find existing HOD for this branch
+    hod = db.query(Faculty).filter(Faculty.branch == branch_name, Faculty.role == "HOD").first()
+    
+    # Check if new username is taken by someone else
+    if hod and hod.username != hod_username:
+        existing = db.query(Faculty).filter(Faculty.username == hod_username).first()
+        if existing:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Username already exists")
+            
+    if hod:
+        hod.name = hod_name
+        hod.username = hod_username
+        if hod_password:
+            from app.utils.security import hash_password
+            hod.password = hash_password(hod_password)
+    else:
+        # Create HOD if missing
+        from app.utils.security import hash_password
+        if not hod_password:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Password is required for new HOD")
+        hod = Faculty(
+            name=hod_name,
+            username=hod_username,
+            password=hash_password(hod_password),
+            role="HOD",
+            branch=branch_name,
+            gender="Male"
+        )
+        db.add(hod)
+        
+    db.commit()
+    return {"message": f"HOD for branch '{branch_name}' updated successfully."}

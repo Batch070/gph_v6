@@ -138,7 +138,12 @@ def update_request(
         all_reqs = db.query(Request).filter(Request.roll_no == req.roll_no).all()
         if all(r.status == "Approved" for r in all_reqs):
             if student:
-                student.status = "Approved"
+                from app.models.fine import Fine
+                fine = db.query(Fine).filter(Fine.roll_no == student.roll_no, Fine.semester == student.semester).first()
+                if fine and fine.amount <= 0:
+                    student.status = "Cleared"
+                else:
+                    student.status = "Approved"
                 db.commit()
     elif new_status in ("Rejected", "Pending"):
         # Revert student status back to Pending if it was Approved
@@ -228,7 +233,12 @@ def bulk_update_requests(
 
             if status == "Approved":
                 if all(r.status == "Approved" for r in reqs):
-                    stu.status = "Approved"
+                    from app.models.fine import Fine
+                    fine = db.query(Fine).filter(Fine.roll_no == stu.roll_no, Fine.semester == stu.semester).first()
+                    if fine and fine.amount <= 0:
+                        stu.status = "Cleared"
+                    else:
+                        stu.status = "Approved"
             else:
                 if stu.status == "Approved":
                     stu.status = "Pending"

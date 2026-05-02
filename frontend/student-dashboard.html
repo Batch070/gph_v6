@@ -515,7 +515,7 @@
                 payFineBtn.disabled = false;
                 payFineBtn.textContent = `Pay Fine (\u20B9 ${pendingAmount})`;
                 downloadReceiptBtn.style.display = 'none';
-            } else if (pendingAmount <= 0 && totalFine > 0) {
+            } else if (pendingAmount <= 0 && data.fine && data.fine.status === 'Paid') {
                 payFineBtn.disabled = true;
                 payFineBtn.textContent = 'Fine Paid \u2713';
                 payFineBtn.classList.add('btn-paid');

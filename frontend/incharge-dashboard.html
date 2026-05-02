@@ -99,6 +99,57 @@
         .subject-search-container input {
             padding-left: 35px !important;
         }
+        .active-sem-highlight {
+            border: 2px solid var(--primary-color) !important;
+            box-shadow: 0 0 15px rgba(30, 58, 138, 0.2) !important;
+            transform: translateY(-5px);
+        }
+        .active-badge {
+            background: #10b981;
+            color: #fff;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+            vertical-align: middle;
+            text-transform: uppercase;
+        }
+        .subject-manage-btn {
+            background: #f1f5f9;
+            color: #1e3a8a;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .subject-manage-btn:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+        }
+        /* Modal for Subjects */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .modal-card {
+            background: #fff;
+            width: 600px;
+            max-width: 90%;
+            border-radius: 15px;
+            padding: 24px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
     </style>
 </head>
 
@@ -474,6 +525,9 @@
                                     <select class="form-control" id="attSubject" style="padding: 10px 14px; border-radius: 8px;">
                                         <!-- Populated via JS -->
                                     </select>
+                                    <button class="subject-manage-btn" id="openSubjectManager" style="margin-top: 8px;">
+                                        <i class="fa-solid fa-gear"></i> Manage Subjects
+                                    </button>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <label style="font-weight: 600; margin-bottom: 6px; display: block;">Total Classes</label>
@@ -616,6 +670,56 @@
         </div>
     </div>
 
+    <!-- Subject Management Modal -->
+    <div id="subjectModal" class="modal-overlay">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3><i class="fa-solid fa-gear"></i> Manage Subjects</h3>
+                <button class="btn btn-sm btn-outline" id="closeSubjectModal">&times;</button>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 10px;">
+                <h4 style="margin-bottom: 10px;">Add New Subject</h4>
+                <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 10px;">
+                    <select class="form-control" id="newSubSem">
+                        <option value="1">Sem 1</option>
+                        <option value="2">Sem 2</option>
+                        <option value="3">Sem 3</option>
+                        <option value="4" selected>Sem 4</option>
+                        <option value="5">Sem 5</option>
+                        <option value="6">Sem 6</option>
+                    </select>
+                    <input type="text" class="form-control" id="newSubName" placeholder="Subject Name">
+                    <select class="form-control" id="newSubType">
+                        <option value="Theory">Theory</option>
+                        <option value="Lab">Lab</option>
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                    <input type="text" class="form-control" id="newSubCode" placeholder="Code (e.g. 011)">
+                    <button class="btn btn-primary" id="addSubjectBtn">Add Subject</button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="approval-table">
+                    <thead>
+                        <tr>
+                            <th>Sem</th>
+                            <th>Code</th>
+                            <th>Subject</th>
+                            <th>Type</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subjectManageBody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <div id="aiProgressModal" class="ai-modal-overlay">
         <div class="ai-modal-card">
             <div class="ai-pulse"><i class="fa-solid fa-brain"></i></div>
@@ -706,19 +810,29 @@
 
         // ── Load Dashboard Data ─────────────────────────────────
         async function loadDashboard() {
+            // Set a fallback timeout to hide spinner if something hangs
+            const loadingTimeout = setTimeout(() => {
+                if (loadingState && loadingState.style.display !== 'none') {
+                    console.warn("Dashboard load timed out, showing content anyway.");
+                    loadingState.style.display = 'none';
+                    mainContent.style.display = 'flex';
+                }
+            }, 5000);
+
             try {
                 const res = await fetch(`${API_BASE}/api/incharge/overview`, {
                     headers: authHeaders,
                 });
 
                 if (res.status === 401) {
+                    clearTimeout(loadingTimeout);
                     localStorage.clear();
                     window.location.href = '/';
                     return;
                 }
 
                 if (!res.ok) {
-                    const err = await res.json();
+                    const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
                     showToast(err.detail || 'Failed to load dashboard', 'error');
                     return;
                 }
@@ -726,15 +840,16 @@
                 const data = await res.json();
                 populateOverview(data);
 
-                // Also load semesters
-                await loadSemesters();
-
-                loadingState.style.display = 'none';
-                mainContent.style.display = 'flex';
+                // Also load semesters (non-blocking)
+                loadSemesters().catch(e => console.error("Semesters load failed", e));
 
             } catch (err) {
                 console.error('Dashboard load error:', err);
                 showToast('Network error. Please try again.', 'error');
+            } finally {
+                clearTimeout(loadingTimeout);
+                if (loadingState) loadingState.style.display = 'none';
+                if (mainContent) mainContent.style.display = 'flex';
             }
         }
 
@@ -752,35 +867,70 @@
         }
 
         function populateOverview(data) {
-            document.getElementById('headerName').textContent = data.faculty_name;
-            document.getElementById('headerSubtitle').textContent =
-                `Class Incharge (${data.branch})`;
-            document.getElementById('overviewBranch').textContent = `Branch: ${data.branch}`;
+            if (!data) return;
 
-            document.getElementById('statStudents').textContent = data.total_students;
-            document.getElementById('statTotalFine').textContent = `₹ ${data.total_fine.toLocaleString('en-IN')}`;
-            document.getElementById('statCollected').textContent = `₹ ${data.collected.toLocaleString('en-IN')}`;
-            document.getElementById('statRemaining').textContent = `₹ ${data.remaining.toLocaleString('en-IN')}`;
-            document.getElementById('statPending').textContent = data.pending_requests;
+            if (document.getElementById('headerName'))
+                document.getElementById('headerName').textContent = data.faculty_name || '---';
+            
+            if (document.getElementById('headerSubtitle'))
+                document.getElementById('headerSubtitle').textContent =
+                    `Class Incharge (${data.branch || 'Unknown'})`;
+            
+            if (document.getElementById('overviewBranch'))
+                document.getElementById('overviewBranch').textContent = `Branch: ${data.branch || '---'}`;
+
+            if (document.getElementById('statStudents'))
+                document.getElementById('statStudents').textContent = data.total_students || 0;
+            
+            if (document.getElementById('statTotalFine'))
+                document.getElementById('statTotalFine').textContent = `₹ ${(data.total_fine || 0).toLocaleString('en-IN')}`;
+            
+            if (document.getElementById('statCollected'))
+                document.getElementById('statCollected').textContent = `₹ ${(data.collected || 0).toLocaleString('en-IN')}`;
+            
+            if (document.getElementById('statRemaining'))
+                document.getElementById('statRemaining').textContent = `₹ ${(data.remaining || 0).toLocaleString('en-IN')}`;
+            
+            if (document.getElementById('statPending'))
+                document.getElementById('statPending').textContent = data.pending_requests || 0;
 
             // Students DB Insights — attendance SVG circles
             const theory = Math.round(data.avg_theory_attendance || 0);
             const practical = Math.round(data.avg_practical_attendance || 0);
-            document.getElementById('insightTheoryPct').textContent = `${theory}%`;
-            document.getElementById('insightPracticalPct').textContent = `${practical}%`;
-            animateCircle(document.getElementById('insightTheoryProgress'), theory);
-            animateCircle(document.getElementById('insightPracticalProgress'), practical);
+            
+            if (document.getElementById('insightTheoryPct'))
+                document.getElementById('insightTheoryPct').textContent = `${theory}%`;
+            
+            if (document.getElementById('insightPracticalPct'))
+                document.getElementById('insightPracticalPct').textContent = `${practical}%`;
+            
+            const theoryEl = document.getElementById('insightTheoryProgress');
+            const practicalEl = document.getElementById('insightPracticalProgress');
+            if (theoryEl) animateCircle(theoryEl, theory);
+            if (practicalEl) animateCircle(practicalEl, practical);
 
             // Count cards
-            document.getElementById('insightHostellers').textContent = data.hosteller_count || 0;
-            document.getElementById('insightNCC').textContent = data.ncc_count || 0;
-            document.getElementById('insightPaid').textContent = data.paid_count || 0;
-            document.getElementById('insightUnpaid').textContent = data.unpaid_count || 0;
+            if (document.getElementById('insightHostellers'))
+                document.getElementById('insightHostellers').textContent = data.hosteller_count || 0;
+            
+            if (document.getElementById('insightNCC'))
+                document.getElementById('insightNCC').textContent = data.ncc_count || 0;
+            
+            if (document.getElementById('insightPaid'))
+                document.getElementById('insightPaid').textContent = data.paid_count || 0;
+            
+            if (document.getElementById('insightUnpaid'))
+                document.getElementById('insightUnpaid').textContent = data.unpaid_count || 0;
 
             // Request summary badges (in Requests section)
-            document.getElementById('reqInsightPending').textContent = data.pending_requests;
-            document.getElementById('reqInsightApproved').textContent = data.approved_requests;
-            document.getElementById('reqInsightRejected').textContent = data.rejected_requests;
+            if (document.getElementById('reqInsightPending'))
+                document.getElementById('reqInsightPending').textContent = data.pending_requests || 0;
+            
+            if (document.getElementById('reqInsightApproved'))
+                document.getElementById('reqInsightApproved').textContent = data.approved_requests || 0;
+            
+            if (document.getElementById('reqInsightRejected'))
+                document.getElementById('reqInsightRejected').textContent = data.rejected_requests || 0;
         }
 
         // ── Load Semesters ──────────────────────────────────────
@@ -804,10 +954,10 @@
 
                 semesters.forEach(sem => {
                     const card = document.createElement('div');
-                    card.className = 'semester-card';
+                    card.className = `semester-card ${sem.is_active ? 'active-sem-highlight' : ''}`;
                     card.innerHTML = `
                         <div class="sem-icon"><i class="fa-solid fa-building-columns"></i></div>
-                        <h3>IT ${semesterLabel(sem.semester)}</h3>
+                        <h3>IT ${semesterLabel(sem.semester)} ${sem.is_active ? '<span class="active-badge">Active</span>' : ''}</h3>
                         <p>${sem.pending_requests} Pending Requests</p>
                         <div class="card-action-hint">Manage Class <i class="fa-solid fa-arrow-right"></i></div>
                     `;
@@ -1185,36 +1335,46 @@
         // ATTENDANCE AI MODULE
         // ═══════════════════════════════════════════════════════════
 
-        const SEMESTER_SUBJECTS = {
-            "4": [
-                { name: "PROGRAMMING IN PYTHON", type: "Theory", label: "(011) PROGRAMMING IN PYTHON (T)" },
-                { name: "PROGRAMMING IN PYTHON", type: "Lab", label: "(012) PROGRAMMING IN PYTHON (P)" },
-                { name: "DATABASE MANAGEMENT SYSTEM", type: "Theory", label: "(021) DATABASE MANAGEMENT SYSTEM (T)" },
-                { name: "DATABASE MANAGEMENT SYSTEM", type: "Lab", label: "(022) DATABASE MANAGEMENT SYSTEM (P)" },
-                { name: "INFORMATION SECURITY", type: "Theory", label: "(031) INFORMATION SECURITY (T)" },
-                { name: "DATA STRUCTURES", type: "Theory", label: "(061) DATA STRUCTURES (T)" },
-                { name: "DATA STRUCTURES", type: "Lab", label: "(062) DATA STRUCTURES (P)" },
-                { name: "ESSENCE OF INDIAN KNOWLEDGE & TRADITION", type: "Theory", label: "(091) ESSENCE OF INDIAN KNOWLEDGE & TRADITION (T)" },
-                { name: "MINOR PROJECT", type: "Lab", label: "(102) MINOR PROJECT (P)" }
-            ]
-        };
+        let ALL_SUBJECTS = [];
+
+        async function fetchSubjects() {
+            try {
+                const res = await fetch(`${API_BASE}/api/subjects`, { headers: authHeaders });
+                if (!res.ok) return;
+                ALL_SUBJECTS = await res.json();
+                populateSubjects();
+            } catch (err) {
+                console.error("Fetch subjects error", err);
+            }
+        }
 
         function populateSubjects() {
             const sem = document.getElementById('attSemester').value;
             const select = document.getElementById('attSubject');
+            if (!select) return;
             select.innerHTML = '';
             
-            const subs = SEMESTER_SUBJECTS[sem] || [{name: "General Subject", type: "Theory", label: "General Subject (Please configure)"}];
+            const subs = ALL_SUBJECTS.filter(s => s.semester == sem);
+            
+            if (subs.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = "";
+                opt.textContent = "No subjects found for this sem";
+                select.appendChild(opt);
+                return;
+            }
+
             subs.forEach(s => {
                 const opt = document.createElement('option');
-                opt.value = `${s.name}|${s.type}`;
-                opt.textContent = s.label;
+                opt.value = `${s.name}|${s.group_type}`;
+                opt.textContent = s.label || `${s.name} (${s.group_type[0]})`;
                 select.appendChild(opt);
             });
         }
         
-        document.getElementById('attSemester').addEventListener('change', populateSubjects);
-        populateSubjects();
+        const attSemEl = document.getElementById('attSemester');
+        if (attSemEl) attSemEl.addEventListener('change', populateSubjects);
+        fetchSubjects();
 
         // ── Tab Mode Switcher ─────────────────────────────────────────
         document.getElementById('modeManualBtn').addEventListener('click', () => {
@@ -1780,7 +1940,7 @@
                 card.style.display = 'block';
 
                 // Enforce Subject Check
-                const requiredSubjCount = (SEMESTER_SUBJECTS[semester] || []).length;
+                const requiredSubjCount = ALL_SUBJECTS.filter(s => s.semester == semester).length;
                 const isComplete = (uploadedSubjectsCount >= requiredSubjCount && requiredSubjCount > 0);
                 
                 document.getElementById('attIncompleteWarning').style.display = isComplete ? 'none' : 'block';
@@ -1888,9 +2048,102 @@
         document.getElementById('sidebarLogout').addEventListener('click', (e) => { e.preventDefault(); doLogout(); });
         document.getElementById('headerLogout').addEventListener('click', doLogout);
 
+        // ── Subject Manager Logic ────────────────────────────────────
+        const subjectModal = document.getElementById('subjectModal');
+        const openSubjectManager = document.getElementById('openSubjectManager');
+        const closeSubjectModal = document.getElementById('closeSubjectModal');
+        const addSubjectBtn = document.getElementById('addSubjectBtn');
+        const subjectManageBody = document.getElementById('subjectManageBody');
+
+        openSubjectManager.addEventListener('click', () => {
+            subjectModal.style.display = 'flex';
+            renderSubjectManager();
+        });
+
+        closeSubjectModal.addEventListener('click', () => {
+            subjectModal.style.display = 'none';
+        });
+
+        async function renderSubjectManager() {
+            subjectManageBody.innerHTML = ALL_SUBJECTS.map(s => `
+                <tr>
+                    <td>${s.semester}</td>
+                    <td>${s.subject_code || '-'}</td>
+                    <td>${s.name}</td>
+                    <td><span class="status-badge ${s.group_type === 'Theory' ? 'status-info' : ''}">${s.group_type}</span></td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="deleteSubject(${s.id})">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        addSubjectBtn.addEventListener('click', async () => {
+            const semester = document.getElementById('newSubSem').value;
+            const name = document.getElementById('newSubName').value.trim();
+            const type = document.getElementById('newSubType').value;
+            const code = document.getElementById('newSubCode').value.trim();
+
+            if (!name) { showToast('Enter subject name', 'warning'); return; }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/subjects`, {
+                    method: 'POST',
+                    headers: authHeaders,
+                    body: JSON.stringify({
+                        semester: parseInt(semester),
+                        name: name,
+                        group_type: type,
+                        subject_code: code || null
+                    })
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    showToast(err.detail || 'Failed to add subject', 'error');
+                    return;
+                }
+                showToast('Subject added successfully', 'success');
+                document.getElementById('newSubName').value = '';
+                document.getElementById('newSubCode').value = '';
+                await fetchSubjects();
+                renderSubjectManager();
+            } catch (err) {
+                console.error("Add subject error", err);
+            }
+        });
+
+        window.deleteSubject = async (id) => {
+            if (!confirm('Delete this subject?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/subjects/${id}`, {
+                    method: 'DELETE',
+                    headers: authHeaders
+                });
+                if (!res.ok) {
+                    showToast('Failed to delete', 'error');
+                    return;
+                }
+                showToast('Subject deleted', 'success');
+                await fetchSubjects();
+                renderSubjectManager();
+            } catch (err) {
+                console.error("Delete subject error", err);
+            }
+        };
+
         // ── Boot ────────────────────────────────────────────────
-        loadDashboard();
+        try {
+            loadDashboard();
+        } catch (e) {
+            console.error("Boot error", e);
+            if (loadingState) loadingState.style.display = 'none';
+            if (mainContent) mainContent.style.display = 'flex';
+        }
     </script>
+
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>

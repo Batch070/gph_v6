@@ -10,7 +10,8 @@ from app.schemas.fine import FineUploadResponse
 from app.schemas.admin import (
     OverviewResponse, BranchDataResponse, GlobalStudentsResponse,
     FacultyListResponse, AdminUpdateRoleBody, AdminAddFacultyBody,
-    AdminGenericResponse, AttendanceInsightsResponse, DBInsightsResponse
+    AdminGenericResponse, AttendanceInsightsResponse, DBInsightsResponse,
+    BranchListResponse, AdminAddBranchBody, AdminUpdateBranchHodBody
 )
 from app.services import admin_service
 from app.utils.deps import require_role
@@ -113,3 +114,31 @@ def get_db_insights(
     db: Session = Depends(get_db)
 ):
     return admin_service.get_db_insights(db)
+
+@router.get("/api/admin/branches", response_model=BranchListResponse)
+def get_branches(
+    _user: TokenData = _admin_only,
+    db: Session = Depends(get_db)
+):
+    return admin_service.get_branches(db)
+
+@router.post("/api/admin/branches", response_model=AdminGenericResponse)
+def add_branch(
+    body: AdminAddBranchBody,
+    _user: TokenData = _admin_only,
+    db: Session = Depends(get_db)
+):
+    return admin_service.add_branch_with_hod(
+        body.name, body.hod_name, body.hod_username, body.hod_password, body.hod_gender, db
+    )
+
+@router.put("/api/admin/branches/{branch_name}/hod", response_model=AdminGenericResponse)
+def update_branch_hod(
+    branch_name: str,
+    body: AdminUpdateBranchHodBody,
+    _user: TokenData = _admin_only,
+    db: Session = Depends(get_db)
+):
+    return admin_service.update_branch_hod(
+        branch_name, body.hod_name, body.hod_username, body.hod_password, db
+    )

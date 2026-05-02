@@ -154,14 +154,22 @@ def submit_clearance_request(roll_no: str, db: Session) -> ClearanceRequestRespo
     created = 0
     # Process mandatory and optional (NCC) roles
     for role in roles_needed:
-        faculty = (
-            db.query(Faculty)
-            .filter(Faculty.role == role, Faculty.branch == student.branch)
-            .first()
-        )
-        if not faculty:
-            # Fallback for roles like Librarian or CanteenOwner that might not be branch-specific
-            faculty = db.query(Faculty).filter(Faculty.role == role).first()
+        if role == "HOD":
+            if student.semester in [1, 2]:
+                # First Year HOD (Manages Sems 1 & 2 for all branches)
+                faculty = db.query(Faculty).filter(Faculty.role == "HOD", Faculty.branch == "First Year").first()
+            else:
+                # Departmental HOD (Manages Sems 3, 4, 5, 6 for specific branch)
+                faculty = db.query(Faculty).filter(Faculty.role == "HOD", Faculty.branch == student.branch).first()
+        else:
+            faculty = (
+                db.query(Faculty)
+                .filter(Faculty.role == role, Faculty.branch == student.branch)
+                .first()
+            )
+            if not faculty:
+                # Fallback for roles like Librarian or CanteenOwner that might not be branch-specific
+                faculty = db.query(Faculty).filter(Faculty.role == role).first()
         
         if faculty:
             req = Request(

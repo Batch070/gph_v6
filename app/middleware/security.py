@@ -17,12 +17,13 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # In a strict production environment, nonces or hashes should be used.
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://kit.fontawesome.com; "
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-            "font-src 'self' https://fonts.gstatic.com https://ka-f.fontawesome.com; "
-            "img-src 'self' data: https://checkout.razorpay.com https://badges.razorpay.com; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://checkout.razorpay.com https://kit.fontawesome.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
+            "font-src 'self' https://fonts.gstatic.com https://ka-f.fontawesome.com https://ka-p.fontawesome.com; "
+            "img-src 'self' data: https://checkout.razorpay.com https://badges.razorpay.com https://img.freepik.com https://images.unsplash.com; "
             "frame-src https://api.razorpay.com; "
-            "connect-src 'self' https://api.razorpay.com https://ka-f.fontawesome.com wss:;"
+            "connect-src 'self' https://api.razorpay.com https://ka-f.fontawesome.com https://ka-p.fontawesome.com https://cdnjs.cloudflare.com wss:; "
+            "worker-src 'self' blob:;"
         )
         
         return response

@@ -12,6 +12,7 @@ from app.models.student import Student
 from app.models.faculty import Faculty
 from app.models.request import Request
 from app.models.fine import Fine
+from app.utils.semester import is_semester_active
 
 
 # ── Overview ──────────────────────────────────────────────────
@@ -170,7 +171,12 @@ def get_semesters(faculty_id: int, db: Session) -> list[dict]:
             )
             .count()
         )
-        result.append({"semester": sem, "student_count": count, "pending_requests": pending})
+        result.append({
+            "semester": sem, 
+            "student_count": count, 
+            "pending_requests": pending,
+            "is_active": is_semester_active(sem)
+        })
     return result
 
 

@@ -23,6 +23,22 @@ from app.models.student import Student
 from app.models.faculty import Faculty
 from app.models.request import Request
 from app.models.fine import Fine
+from app.utils.semester import is_semester_active, get_hod_semesters
+
+
+def _hod_students_query(db: Session, branch: str, faculty_id: int = None):
+    """Build a base query for students managed by an HOD.
+    First Year HOD sees sem 1 & 2 across ALL branches.
+    Department HODs see sem 3-6 for their branch only.
+    """
+    semesters = get_hod_semesters(branch)
+    query = db.query(Student)
+    if branch == "First Year":
+        query = query.filter(Student.semester.in_(semesters))
+    else:
+        query = query.filter(Student.branch == branch, Student.semester.in_(semesters))
+    return query
+
 
 
 # ── Overview ──────────────────────────────────────────────────
@@ -32,7 +48,9 @@ def get_overview(faculty_id: int, db: Session) -> dict:
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="HOD access required")
 
     branch = faculty.branch or "Information Technology"
-    students = db.query(Student).filter(Student.branch == branch).all()
+    
+    students = _hod_students_query(db, branch).all()
+        
     roll_nos = [s.roll_no for s in students]
 
     total_students = len(students)
@@ -90,12 +108,15 @@ def get_semesters(faculty_id: int, db: Session) -> list[dict]:
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="HOD access required")
 
     branch = faculty.branch or "Information Technology"
-    rows = (
-        db.query(Student.semester, func.count(Student.roll_no))
-        .filter(Student.branch == branch)
-        .group_by(Student.semester)
-        .all()
-    )
+    
+    semesters = get_hod_semesters(branch)
+    query = db.query(Student.semester, func.count(Student.roll_no))
+    if branch == "First Year":
+        query = query.filter(Student.semester.in_(semesters))
+    else:
+        query = query.filter(Student.branch == branch, Student.semester.in_(semesters))
+
+    rows = query.group_by(Student.semester).all()
 
     result = []
     for sem, count in rows:
@@ -110,7 +131,12 @@ def get_semesters(faculty_id: int, db: Session) -> list[dict]:
             )
             .count()
         )
-        result.append({"semester": sem, "student_count": count, "pending_requests": pending})
+        result.append({
+            "semester": sem, 
+            "student_count": count, 
+            "pending_requests": pending,
+            "is_active": is_semester_active(sem)
+        })
     return result
 
 
@@ -121,7 +147,9 @@ def get_students(faculty_id: int, semester: Optional[int], db: Session) -> list[
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="HOD access required")
 
     branch = faculty.branch or "Information Technology"
-    query = db.query(Student).filter(Student.branch == branch)
+    
+    query = _hod_students_query(db, branch)
+        
     if semester:
         query = query.filter(Student.semester == semester)
 
@@ -404,10 +432,15 @@ def assign_class_incharge(
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="Cannot assign faculty outside your department")
 
     # Check if there are actually any students in this semester to assign
-    student_count = db.query(Student).filter(
-        Student.branch == branch,
-        Student.semester == semester
-    ).count()
+    if branch == "First Year":
+        student_count = db.query(Student).filter(
+            Student.semester == semester
+        ).count()
+    else:
+        student_count = db.query(Student).filter(
+            Student.branch == branch,
+            Student.semester == semester
+        ).count()
 
     if student_count == 0:
         raise HTTPException(
@@ -419,17 +452,28 @@ def assign_class_incharge(
     target.role = "ClassIncharge"
 
     # Remove previous class incharge for this semester (unassign students)
-    db.query(Student).filter(
-        Student.branch == branch,
-        Student.semester == semester,
-        Student.class_incharge_id != target.id,
-    ).update({Student.class_incharge_id: None}, synchronize_session=False)
+    if branch == "First Year":
+        db.query(Student).filter(
+            Student.semester == semester,
+            Student.class_incharge_id != target.id,
+        ).update({Student.class_incharge_id: None}, synchronize_session=False)
+    else:
+        db.query(Student).filter(
+            Student.branch == branch,
+            Student.semester == semester,
+            Student.class_incharge_id != target.id,
+        ).update({Student.class_incharge_id: None}, synchronize_session=False)
 
     # Assign this faculty to all students in the semester
-    db.query(Student).filter(
-        Student.branch == branch,
-        Student.semester == semester,
-    ).update({Student.class_incharge_id: target.id}, synchronize_session=False)
+    if branch == "First Year":
+        db.query(Student).filter(
+            Student.semester == semester,
+        ).update({Student.class_incharge_id: target.id}, synchronize_session=False)
+    else:
+        db.query(Student).filter(
+            Student.branch == branch,
+            Student.semester == semester,
+        ).update({Student.class_incharge_id: target.id}, synchronize_session=False)
 
     db.commit()
 
@@ -447,7 +491,7 @@ def get_report(faculty_id: int, report_type: str, db: Session) -> StreamingRespo
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="HOD access required")
 
     branch = faculty.branch or "Information Technology"
-    students = db.query(Student).filter(Student.branch == branch).all()
+    students = _hod_students_query(db, branch).all()
     roll_nos = [s.roll_no for s in students]
     student_map = {s.roll_no: s for s in students}
 
@@ -524,6 +568,8 @@ def upload_branch_data(file: UploadFile, faculty_id: int, db: Session) -> dict:
             col_map[col] = "ncc"
         elif "hostel" in lower:
             col_map[col] = "hosteller"
+        elif "branch" in lower or "department" in lower:
+            col_map[col] = "branch"
     df.rename(columns=col_map, inplace=True)
 
     required = {"roll_no", "name", "semester", "dob"}
@@ -533,7 +579,7 @@ def upload_branch_data(file: UploadFile, faculty_id: int, db: Session) -> dict:
             detail=f"File must contain columns: {', '.join(required)}. Found: {', '.join(df.columns)}",
         )
 
-    branch = faculty.branch or "Information Technology"
+    faculty_branch = faculty.branch or "Information Technology"
     inserted = 0
     updated = 0
     errors = []
@@ -552,23 +598,30 @@ def upload_branch_data(file: UploadFile, faculty_id: int, db: Session) -> dict:
         gender = str(row.get("gender", "")).strip() if "gender" in df.columns else None
         ncc = bool(row.get("ncc", False)) if "ncc" in df.columns else False
         hosteller = bool(row.get("hosteller", False)) if "hosteller" in df.columns else False
+        row_branch = str(row.get("branch", "")).strip() if "branch" in df.columns else ""
 
         existing = db.query(Student).filter(Student.roll_no == roll_no).first()
         if existing:
             existing.name = name
             existing.semester = semester
             existing.dob = dob
-            existing.branch = branch
             existing.academic_year = academic_year
             existing.hod_id = faculty_id
             if gender:
                 existing.gender = gender
+                
+            if row_branch:
+                existing.branch = row_branch
+            elif faculty_branch != "First Year":
+                existing.branch = faculty_branch
+
             updated += 1
         else:
+            new_branch = row_branch if row_branch else faculty_branch
             new_student = Student(
                 roll_no=roll_no,
                 name=name,
-                branch=branch,
+                branch=new_branch,
                 semester=semester,
                 academic_year=academic_year,
                 dob=dob,
@@ -629,6 +682,8 @@ def upload_semester_data(file: UploadFile, semester: int, faculty_id: int, db: S
             col_map[col] = "theory_attendance"
         elif "practical" in lower or "pract" in lower:
             col_map[col] = "practical_attendance"
+        elif "branch" in lower or "department" in lower:
+            col_map[col] = "branch"
     df.rename(columns=col_map, inplace=True)
 
     required = {"roll_no", "name", "dob"}
@@ -638,7 +693,7 @@ def upload_semester_data(file: UploadFile, semester: int, faculty_id: int, db: S
             detail=f"File must contain columns: {', '.join(required)}. Found: {', '.join(df.columns)}",
         )
 
-    branch = faculty.branch or "Information Technology"
+    faculty_branch = faculty.branch or "Information Technology"
     inserted = 0
     updated = 0
     errors = []
@@ -655,14 +710,20 @@ def upload_semester_data(file: UploadFile, semester: int, faculty_id: int, db: S
         gender = str(row.get("gender", "")).strip() if "gender" in df.columns else None
         ncc = bool(row.get("ncc", False)) if "ncc" in df.columns else False
         hosteller = bool(row.get("hosteller", False)) if "hosteller" in df.columns else False
+        row_branch = str(row.get("branch", "")).strip() if "branch" in df.columns else ""
 
         existing = db.query(Student).filter(Student.roll_no == roll_no).first()
         if existing:
             existing.name = name
             existing.semester = semester
             existing.dob = dob
-            existing.branch = branch
             existing.hod_id = faculty_id
+            
+            if row_branch:
+                existing.branch = row_branch
+            elif faculty_branch != "First Year":
+                existing.branch = faculty_branch
+
             if gender:
                 existing.gender = gender
             if "theory_attendance" in df.columns:
@@ -677,10 +738,11 @@ def upload_semester_data(file: UploadFile, semester: int, faculty_id: int, db: S
                     pass
             updated += 1
         else:
+            new_branch = row_branch if row_branch else faculty_branch
             new_student = Student(
                 roll_no=roll_no,
                 name=name,
-                branch=branch,
+                branch=new_branch,
                 semester=semester,
                 academic_year="2025-26",
                 dob=dob,
@@ -708,7 +770,7 @@ def reset_data(faculty_id: int, db: Session) -> dict:
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="HOD access required")
 
     branch = faculty.branch or "Information Technology"
-    students = db.query(Student).filter(Student.branch == branch).all()
+    students = _hod_students_query(db, branch).all()
     roll_nos = [s.roll_no for s in students]
 
     if not roll_nos:
@@ -738,7 +800,10 @@ def delete_semester_data(faculty_id: int, semester: int, db: Session) -> dict:
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="HOD access required")
 
     branch = faculty.branch or "Information Technology"
-    students = db.query(Student).filter(Student.branch == branch, Student.semester == semester).all()
+    if branch == "First Year":
+        students = db.query(Student).filter(Student.semester == semester).all()
+    else:
+        students = db.query(Student).filter(Student.branch == branch, Student.semester == semester).all()
     roll_nos = [s.roll_no for s in students]
 
     if not roll_nos:
