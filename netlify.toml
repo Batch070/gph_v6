@@ -11,6 +11,12 @@
 
 # Redirect all API traffic to the FastAPI serverless function
 [[redirects]]
+  from = "/api/health"
+  to = "/.netlify/functions/health"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api"
   status = 200
