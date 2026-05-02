@@ -33,8 +33,11 @@ class Settings(BaseSettings):
     @classmethod
     def parse_cors_origins(cls, v):
         if isinstance(v, str):
+            if v == "*":
+                return ["*"]
             return [i.strip() for i in v.split(",")]
         return v
+
 
     # ── Email ─────────────────────────────────────────────────
     SMTP_SERVER: str = "smtp.gmail.com"
