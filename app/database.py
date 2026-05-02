@@ -8,28 +8,22 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 from app.config import settings
 
-# SSL configuration for TiDB Cloud
-ssl_args = {}
+# SSL configuration for TiDB Cloud (Serverless)
+connect_args = {}
 if "tidbcloud.com" in settings.DATABASE_URL:
-    # Try common Linux CA paths (Vercel uses Amazon Linux)
-    ca_paths = [
-        "/etc/pki/tls/certs/ca-bundle.crt", # Amazon Linux / RHEL
-        "/etc/ssl/certs/ca-certificates.crt", # Ubuntu / Debian
-        "/etc/ssl/cert.pem" # macOS / Generic
-    ]
-    ca_path = next((p for p in ca_paths if os.path.exists(p)), None)
-    if ca_path:
-        ssl_args = {"ssl": {"ca": ca_path}}
-    else:
-        # Fallback if no file found, at least try to enable SSL
-        ssl_args = {"ssl": {}}
+    # Most reliable way on Vercel: let the driver handle TLS auto-negotiation
+    connect_args = {
+        "ssl": {
+            "ca": None, # Use system defaults
+            "check_hostname": False # Avoid hostname mismatch issues in serverless
+        }
+    }
 
 engine = create_engine(
     settings.DATABASE_URL,
+    connect_args=connect_args,
     pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20,
-    connect_args=ssl_args
+    pool_recycle=300 # Reset connections every 5 mins
 )
 
 
