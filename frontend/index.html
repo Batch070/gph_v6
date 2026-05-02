@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GPH Automated Fine Payment | Government Polytechnic Hamirpur</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <meta name="description"
         content="Official secure fee and fine payment portal for Government Polytechnic Hamirpur. Secure, transparent, and digital management.">
 
@@ -105,6 +106,9 @@
 
     <script>
         const API_BASE = '';  // same origin
+        const SUPABASE_URL = 'https://aujnucxqcymtwxxlamvn.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_cbX2d3aYPqeIFcHHrO5ngg_N8nAGO8x';
+        const supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // ── Role Toggle ──────────────────────────────────────
         let selectedRole = 'student';
@@ -213,8 +217,46 @@
                 }
 
             } catch (err) {
-                showError('Network error. Please try again.');
                 console.error(err);
+                
+                // --- Production Level Fallback: Try Supabase Directly ---
+                try {
+                    showError('Attempting secure direct login...');
+                    if (selectedRole === 'student') {
+                        const { data, error } = await supa
+                            .from('students')
+                            .select('*')
+                            .eq('roll_no', username)
+                            .eq('dob', password)
+                            .single();
+                        
+                        if (error || !data) throw new Error('Invalid credentials');
+                        
+                        localStorage.setItem('user_role', 'Student');
+                        localStorage.setItem('token_sub', data.roll_no);
+                        localStorage.setItem('token_role', 'Student');
+                        window.location.href = '/student-dashboard';
+                        return;
+                    } else {
+                        // For faculty, we need to check username/password
+                        // Note: Direct password check only works if passwords are NOT hashed 
+                        // or if we have a custom RPC. For now, we try to match.
+                        const { data, error } = await supa
+                            .from('faculty')
+                            .select('*')
+                            .eq('username', username)
+                            .single();
+                        
+                        if (error || !data) throw new Error('Invalid credentials');
+                        
+                        // If the backend is down, we allow a bypass IF the username matches 
+                        // and it's a known admin for emergency access, or we just fail.
+                        // Ideally, we'd use a Supabase RPC here for bcrypt verification.
+                        throw new Error('Faculty login requires backend service. Please contact admin.');
+                    }
+                } catch (fallbackErr) {
+                    showError('Network error & Fallback failed. Please check your credentials or connection.');
+                }
             } finally {
                 loginBtn.disabled = false;
                 loginBtn.textContent = 'Login to Portal';
