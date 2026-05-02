@@ -14,6 +14,8 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     libmariadb-dev \
     pkg-config \
+    libffi-dev \
+    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies
@@ -27,12 +29,12 @@ COPY . /app
 # Expose the port that the app runs on
 EXPOSE 8000
 
-# Run the FastAPI application with reduced logging noise for production
-CMD ["gunicorn", "app.main:app", \
-     "-w", "4", \
-     "-k", "uvicorn.workers.UvicornWorker", \
-     "-b", "0.0.0.0:8000", \
-     "--log-level", "warning", \
-     "--access-logfile", "/dev/null", \
-     "--error-logfile", "-"]
+# Run the FastAPI application with dynamic port for Railway
+CMD gunicorn app.main:app \
+     -w 4 \
+     -k uvicorn.workers.UvicornWorker \
+     -b 0.0.0.0:${PORT:-8000} \
+     --log-level warning \
+     --access-logfile /dev/null \
+     --error-logfile -
 
