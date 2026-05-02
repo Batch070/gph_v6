@@ -31,10 +31,10 @@ EXPOSE 8000
 
 # Run the FastAPI application with dynamic port for Railway
 CMD gunicorn app.main:app \
-     -w 4 \
+     -w 1 \
      -k uvicorn.workers.UvicornWorker \
      -b 0.0.0.0:${PORT:-8000} \
-     --log-level warning \
+     --log-level debug \
      --access-logfile /dev/null \
      --error-logfile -
 

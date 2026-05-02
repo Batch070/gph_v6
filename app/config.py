@@ -26,17 +26,10 @@ class Settings(BaseSettings):
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 120  # 2 hours
 
     # ── CORS ──────────────────────────────────────────────────
-    # Can be a comma-separated string in .env
-    CORS_ORIGINS: list[str] = ["http://localhost:8000", "http://127.0.0.1:8000"]
+    # Can be a comma-separated string in .env (e.g., "http://localhost:8000,http://example.com")
+    # Use "*" to allow all origins.
+    CORS_ORIGINS: str = "*"
 
-    @field_validator("CORS_ORIGINS", mode="before")
-    @classmethod
-    def parse_cors_origins(cls, v):
-        if isinstance(v, str):
-            if v == "*":
-                return ["*"]
-            return [i.strip() for i in v.split(",")]
-        return v
 
 
     # ── Email ─────────────────────────────────────────────────
